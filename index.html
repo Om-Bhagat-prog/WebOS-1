@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset = "UTF-8">
+
+        <meta
+            name = "viewport"
+            content = "width=device-width, initial-scale = 1.0"
+        >
+
+        <meta
+            name = "description"
+            content = "A browser-based desktop created for Hack Club WebOS 1."
+        >
+
+        <title>GreenSpace WebOS</title>
+
+        <link rel = "stylesheet" href = "style.css">
+    </head>
+
+    <body>
+        <main id = "desktop" class = "desktop">
+            <section
+                class = "desktop-icons"
+                aria-label = "Desktop applications"
+            >
+
+                <button
+                    class = "desktop-icon"
+                    type = "button"
+                    data-app-name = "Welcome"
+                >
+                    <span class = "desktop-icon-image" aria-hidden = "true">
+                        🌎
+                    </span>
+
+                    <span class = "desktop-icon-label">
+                        Welcome
+                    </span>
+                </button>
+
+                <button
+                    class = "desktop-icon"
+                    type = "button"
+                    data-app-name = "Notes"
+                >
+                    <span class = "desktop-icon-image" aria-hidden = "true">
+                        📝
+                    </span>
+
+                    <span class = "desktop-icon-label">
+                        Notes
+                    </span>
+                </button>
+
+                <button
+                    class = "desktop-icon"
+                    type = "button"
+                    data-app-name = "Nature"
+                >
+                    <span class = "desktop-icon-image" aria-hidden = "true">
+                        🌿
+                    </span>
+
+                    <span class = "desktop-icon-label">
+                        Nature
+                    </span>
+                </button>
+            </section>
+
+            <section
+                id = "welcome-window"
+                class = "app-window"
+                aria-label = "Welcome application"
+            >
+                <header class = "window-header">
+                    <div class = "window-title">
+                        <span aria-hidden = "true">🌎</span>
+                        <span>Welcome</span>
+                    </div>
+
+                    <div
+                        class = "window-controls"
+                        aria-label = "Window controls"
+                    >
+                        <button
+                            class = "window-control"
+                            type = "button"
+                            aria-label = "Minimize"
+                            disabled
+                        >
+                            −
+                        </button>
+
+                        <button
+                            class = "window-control"
+                            type = "button"
+                            aria-label = "Maximize"
+                            disabled
+                        >
+                            □
+                        </button>
+
+                        <button
+                            class = "window-control close-control"
+                            type = "button"
+                            ari-label = "Close"
+                            disabled
+                        >
+                            ×
+                        </button>
+                    </div>
+                </header>
+
+                <div class = "window-content">
+                    <div class = "welcome-grid">
+                        <div class = "welcome-logo" aria-hidden = "true">
+                            🌱
+                        </div>
+
+                        <div>
+                            <p class = "eyebrow">
+                                SYSTEM READY
+                            </p>
+
+                            <h1>
+                                Welcome to GreenSpace WebOS
+                            </h1>
+
+                            <p>
+                                This is a browser-based desktop environment being
+                                created for the Hack Club WebOS 1 mission.
+                            </p>
+
+                            <p>
+                                During the next development hours, this desktop
+                                will gain working applications, draggable windows,
+                                a Start menu, saved notes, themes, and other
+                                interactive features.
+                            </p>
+
+                            <div class = "system-card">
+                                <span class = "status-dot" aria-hidden = "true"></span>
+
+                                <div>
+                                    <strong>System status</strong>
+                                    <span>Desktop is running normally</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class = "taskbar">
+                <button
+                    id = "start-button"
+                    class = "start-button"
+                    type = "button"
+                    aria-label = "Open Start menu"
+                >
+                    <span class = "start-logo" aria-hidden = "true">
+                        G
+                    </span>
+
+                    <span class = "start-text">
+                        Start
+                    </span>
+                </button>
+
+                <div
+                    class = "taskbar-applications"
+                    aria-label = "Running applications"
+                >
+                    <button
+                        class = "taskbar-app active"
+                        type = "button"
+                        aria-label = "Welcome application"
+                    >
+                        <span aria-hidden = "true">🌎</span>
+                        <span class = "taskbar-app-name">Welcome</span>
+                    </button>
+                </div>
+
+                <div class = "system-tray">
+                    <span
+                        class = "tray-icon"
+                        title = "Internet connected"
+                        aria-label = "Internet connected"
+                    >
+                        📶
+                    </span>
+
+                    <span
+                        class = "tray-icon"
+                        title = "Sound"
+                        aria-label = "Sound"
+                    >
+                        🔊
+                    </span>
+
+                    <div class = "clock" aria live = "polite">
+                        <span id = "clock-time">
+                            --:--
+                        </span>
+
+                        <span id = "clock-date">
+                            ---
+                        </span>
+                    </div>
+                </div>
+            </footer>
+        </main>
+
+        <script src = "srcipt.js"></script>
+    </body>
+</html>
