@@ -21,6 +21,10 @@ const openWindowButtons = document.querySelectorAll(
 let highestWindowZIndex = 20;
 let startMessageTimeoutId = null;
 
+const TASKBAR_HEIGHT = 64;
+const MINIMUM_VISIBLE_WINDOW_WIDTH = 120;
+const MINIMUM_VISIBLE_TITLEBAR_HEIGHT = 48;
+
 /**
  * Updates the taskbar clock using the visitor's local time.
  */
@@ -56,6 +60,65 @@ function getWindowById(windowId) {
  */
 function isWindowOpen(windowElement) {
     return !windowElement.classList.contains("hidden");
+}
+
+/**
+ * Converts a CSS pixel value into a number.
+ *
+ * @param {string} value
+ * @returns {number}
+ */
+function parsePixelValue(value) {
+    const parsedValue = Number.parseFloat(value);
+
+    return Number.isFinite(parsedValue) ? parsedValue : 0;
+}
+
+/**
+ * Keeps a window reachable inside the desktop.
+ *
+ * The entire window does not have to remain visible, but enough of
+ * the title bar must remain on screen so the user can recover it.
+ *
+ * @param {HTMLElement} windowElement
+ * @param {number} proposedLeft
+ * @param {number} proposedTop
+ * @returns {{ left: number, top: number }}
+ */
+function getSafeWindowPosition(
+    windowElement,
+    proposedLeft,
+    proposedTop
+) {
+    const desktopWidth = desktop.clientWidth;
+    const desktopHeight = desktop.clientHeight;
+
+    const windowWidth = windowElement.offsetWidth;
+
+    const minimumLeft =
+        MINIMUM_VISIBLE_WINDOW_WIDTH - windowWidth;
+
+    const maximumLeft =
+        desktopWidth - MINIMUM_VISIBLE_WINDOW_WIDTH;
+
+    const minimumTop = 0;
+
+    const maximumTop =
+        desktopHeight -
+        TASKBAR_HEIGHT -
+        MINIMUM_VISIBLE_TITLEBAR_HEIGHT;
+
+    return {
+        left: Math.min(
+            Math.max(proposedLeft, minimumLeft),
+            maximumLeft
+        ),
+
+        top: Math.min(
+            Math.max(proposedTop, minimumTop),
+            maximumTop
+        )
+    };
 }
 
 /**
@@ -153,6 +216,194 @@ function focusHighestVisibleWindow() {
     );
 
     focusWindow(highestVisibleWindow);
+}
+
+/**
+ * Adds pointer-based dragging to one application window.
+ *
+ * Pointer Events support mouse, touch, and pen input through
+ * the same event model.
+ *
+ * @param {HTMLElement} windowElement
+ */
+function makeWindowDraggable(windowElement) {
+    const dragHandle = windowElement.querySelector(
+        "[data-drag-handle]"
+    );
+
+    if(!dragHandle) {
+        console.warn(
+            `No drag handle found for window: ${windowElement.id}`
+        );
+        return;
+    }
+
+    let isDragging = false;
+
+    let pointerStartX = 0;
+
+    let pointerStartY = 0;
+
+    let windowStartLeft = 0;
+    let windowStartTop = 0;
+
+     /**
+     * Begins dragging when the title bar is pressed.
+     *
+     * @param {PointerEvent} event
+     */
+
+     function startDragging(event) {
+        const clickedWindowControl = event.target.closest(
+            ".window-control"
+        );
+
+        if (clickedWindowControl) {
+            return;
+        }
+
+        if (event.button !== undefined && event.button !== 0) {
+            return;
+        }
+
+        isDragging = true;
+
+        pointerStartX = event.clientX;
+        pointerStartY = event.clientY;
+
+        const computedStyle = window.getComputedStyle(
+            windowElement
+        );
+
+        windowStartLeft = parsePixelValue(
+            computedStyle.left
+        );
+
+        windowStartTop = parsePixelValue(
+            computedStyle.top
+        );
+
+        focusWindow(windowElement);
+        windowElement.classList.add("dragging");
+        
+        dragHandle.setPointerCapture(event.pointerId);
+
+        event.preventDefault();
+     }
+
+     /**
+     * Moves the window while dragging is active.
+     *
+     * @param {PointerEvent} event
+     */
+    function moveWindow(event) {
+        if (!isDragging) {
+            return;
+        }
+
+        const horizontalMovement = 
+            event.clientX - pointerStartX;
+        
+        const verticalMovement = 
+            event.clientY - pointerStartY;
+
+        const proposedLeft = 
+            windowStartLeft + horizontalMovement;
+
+        const proposedTop = 
+            windowStartTop + verticalMovement;
+
+        const safePosition = getSafeWindowPosition(
+            windowElement,
+            proposedLeft,
+            proposedTop
+        );
+
+        windowElement.style.left = 
+            `${safePosition.left}px`;
+
+        windowElement.style.top = 
+            `${safePosition.top}px`;
+    }
+
+    /**
+     * Finishes the current drag operation.
+     *
+     * @param {PointerEvent} event
+     */
+    function stopDragging(event) {
+        if (!isDragging) {
+            return;
+        }
+
+        isDragging = false;
+
+        windowElement.classList.remove("dragging");
+
+        if (dragHandle.hasPointerCapture(event.pointerId)) {
+            dragHandle.releasePointerCapture(event.pointerId);
+        }
+    }
+
+    dragHandle.addEventListener(
+        "pointerdown",
+        startDragging
+    );
+
+    dragHandle.addEventListener(
+        "pointermove",
+        moveWindow
+    );
+
+    dragHandle.addEventListener(
+        "pointerup",
+        stopDragging
+    );
+
+    dragHandle.addEventListener(
+        "pointercancel",
+        stopDragging
+    );
+}
+
+/**
+ * Repositions an open window if a browser resize leaves its
+ * title bar outside the usable desktop area.
+ *
+ * @param {HTMLElement} windowElement
+ */
+function keepWindowInsideDesktop(windowElement) {
+    if (!isWindowOpen(windowElement)) {
+        return;
+    }
+
+    const computedStyle = window.getComputedStyle(
+        windowElement
+    );
+
+    const currentLeft = parsePixelValue(
+        computedStyle.left
+    );
+
+    const currentTop = parsePixelValue(
+        computedStyle.top
+    );
+
+    const safePosition = getSafeWindowPosition(
+        windowElement,
+        currentLeft,
+        currentTop
+    );
+
+    windowElement.style.left = `${safePosition.left}px`;
+    windowElement.style.top = `${safePosition.top}px`;
+}
+
+/**
+ * Keeps all open application windows reachable.
+ */
+function keepAllWindowsInsideDesktop() {
+    applicationWindows.forEach(keepWindowInsideDesktop);
 }
 
 /**
@@ -272,6 +523,7 @@ function registerDesktopIconEvents() {
 /**
  * Registers focus and close events for each application window.
  */
+
 function registerWindowEvents() {
     applicationWindows.forEach((windowElement) => {
         const closeButton = windowElement.querySelector(
@@ -288,6 +540,8 @@ function registerWindowEvents() {
                 closeWindow(windowElement);
             });
         }
+
+        makeWindowDraggable(windowElement);
     });
 }
 
@@ -311,12 +565,18 @@ function initializeOpenWindows() {
 /**
  * Starts the WebOS interface.
  */
+
 function initializeWebOS() {
     registerDesktopIconEvents();
     registerWindowEvents();
     initializeOpenWindows();
 
     startButton.addEventListener("click", showStartMessage);
+
+    window.addEventListener(
+    "resize",
+    keepAllWindowsInsideDesktop
+    );
 
     updateClock();
     window.setInterval(updateClock, 1000);

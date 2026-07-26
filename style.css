@@ -217,6 +217,8 @@ button:not(:disabled) {
         box-shadow 160ms ease,
         opacity 160ms ease;
 
+    will-change: left, top;
+
     animation: open-window 190ms ease-out;
 }
 
@@ -244,6 +246,24 @@ button:not(:disabled) {
     opacity: 1;
 }
 
+.app-window.dragging {
+    opacity: 1;
+    animation: none;
+
+    box-shadow:
+        inset- 34px 95px rgba(0, 0, 0, 0.48),
+        0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+.app-window.dragging .window-header {
+    cursor: grabbing;
+}
+
+.app-window.dragging,
+.app-window.dragging * {
+    user-select: none;
+}
+
 .app-window:not(.active-window) .window-header {
     filter: saturate(0.72);
 }
@@ -262,6 +282,8 @@ button:not(:disabled) {
     background: var(--window-header-background);
 
     user-select: none;
+    touch-action: none;
+    cursor: grab;
 }
 
 .window-title {
@@ -276,6 +298,10 @@ button:not(:disabled) {
 .window-controls {
     display: flex;
     height: 100%;
+}
+.window-controls,
+.window-controls button {
+    cursor: default;
 }
 
 .window-control {
@@ -911,6 +937,10 @@ button:not(:disabled) {
         min-width: 0;
 
         height: calc(100vh - 190px);
+    }
+
+    .window-header {
+        cursor: grab;
     }
 
     .window-content {
