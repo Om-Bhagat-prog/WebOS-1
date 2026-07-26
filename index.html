@@ -1,217 +1,511 @@
 <!DOCTYPE html>
-<html lang = "en">
-    <head>
-        <meta charset = "UTF-8">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
-        <meta
-            name = "viewport"
-            content = "width=device-width, initial-scale = 1.0"
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="A browser-based desktop created for Hack Club WebOS 1."
+    >
+
+    <title>GreenSpace WebOS</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main id="desktop" class="desktop">
+        <!-- =====================================================
+             Desktop application icons
+             ===================================================== -->
+        <section
+            class="desktop-icons"
+            aria-label="Desktop applications"
         >
+            <button
+                class="desktop-icon"
+                type="button"
+                data-open-window="welcome-window"
+            >
+                <span class="desktop-icon-image" aria-hidden="true">
+                    🌎
+                </span>
 
-        <meta
-            name = "description"
-            content = "A browser-based desktop created for Hack Club WebOS 1."
+                <span class="desktop-icon-label">
+                    Welcome
+                </span>
+            </button>
+
+            <button
+                class="desktop-icon"
+                type="button"
+                data-open-window="notes-window"
+            >
+                <span class="desktop-icon-image" aria-hidden="true">
+                    📝
+                </span>
+
+                <span class="desktop-icon-label">
+                    Notes
+                </span>
+            </button>
+
+            <button
+                class="desktop-icon"
+                type="button"
+                data-open-window="nature-window"
+            >
+                <span class="desktop-icon-image" aria-hidden="true">
+                    🌿
+                </span>
+
+                <span class="desktop-icon-label">
+                    Nature
+                </span>
+            </button>
+        </section>
+
+        <!-- =====================================================
+             Welcome application
+             ===================================================== -->
+        <section
+            id="welcome-window"
+            class="app-window active-window"
+            data-window
+            data-app-title="Welcome"
+            data-app-icon="🌎"
+            aria-label="Welcome application"
         >
+            <header class="window-header">
+                <div class="window-title">
+                    <span aria-hidden="true">🌎</span>
+                    <span>Welcome</span>
+                </div>
 
-        <title>GreenSpace WebOS</title>
-
-        <link rel = "stylesheet" href = "style.css">
-    </head>
-
-    <body>
-        <main id = "desktop" class = "desktop">
-            <section
-                class = "desktop-icons"
-                aria-label = "Desktop applications"
-            >
-
-                <button
-                    class = "desktop-icon"
-                    type = "button"
-                    data-app-name = "Welcome"
+                <div
+                    class="window-controls"
+                    aria-label="Window controls"
                 >
-                    <span class = "desktop-icon-image" aria-hidden = "true">
-                        🌎
-                    </span>
-
-                    <span class = "desktop-icon-label">
-                        Welcome
-                    </span>
-                </button>
-
-                <button
-                    class = "desktop-icon"
-                    type = "button"
-                    data-app-name = "Notes"
-                >
-                    <span class = "desktop-icon-image" aria-hidden = "true">
-                        📝
-                    </span>
-
-                    <span class = "desktop-icon-label">
-                        Notes
-                    </span>
-                </button>
-
-                <button
-                    class = "desktop-icon"
-                    type = "button"
-                    data-app-name = "Nature"
-                >
-                    <span class = "desktop-icon-image" aria-hidden = "true">
-                        🌿
-                    </span>
-
-                    <span class = "desktop-icon-label">
-                        Nature
-                    </span>
-                </button>
-            </section>
-
-            <section
-                id = "welcome-window"
-                class = "app-window"
-                aria-label = "Welcome application"
-            >
-                <header class = "window-header">
-                    <div class = "window-title">
-                        <span aria-hidden = "true">🌎</span>
-                        <span>Welcome</span>
-                    </div>
-
-                    <div
-                        class = "window-controls"
-                        aria-label = "Window controls"
+                    <button
+                        class="window-control"
+                        type="button"
+                        aria-label="Minimize Welcome"
+                        title="Minimize will be added in Commit 4"
+                        disabled
                     >
-                        <button
-                            class = "window-control"
-                            type = "button"
-                            aria-label = "Minimize"
-                            disabled
-                        >
-                            −
-                        </button>
+                        −
+                    </button>
 
-                        <button
-                            class = "window-control"
-                            type = "button"
-                            aria-label = "Maximize"
-                            disabled
-                        >
-                            □
-                        </button>
+                    <button
+                        class="window-control"
+                        type="button"
+                        aria-label="Maximize Welcome"
+                        title="Maximize will be added in Commit 4"
+                        disabled
+                    >
+                        □
+                    </button>
 
-                        <button
-                            class = "window-control close-control"
-                            type = "button"
-                            ari-label = "Close"
-                            disabled
-                        >
-                            ×
-                        </button>
+                    <button
+                        class="window-control close-control"
+                        type="button"
+                        data-close-window
+                        aria-label="Close Welcome"
+                        title="Close Welcome"
+                    >
+                        ×
+                    </button>
+                </div>
+            </header>
+
+            <div class="window-content">
+                <div class="welcome-grid">
+                    <div class="welcome-logo" aria-hidden="true">
+                        🌱
                     </div>
-                </header>
 
-                <div class = "window-content">
-                    <div class = "welcome-grid">
-                        <div class = "welcome-logo" aria-hidden = "true">
-                            🌱
-                        </div>
+                    <div>
+                        <p class="eyebrow">
+                            SYSTEM READY
+                        </p>
 
-                        <div>
-                            <p class = "eyebrow">
-                                SYSTEM READY
-                            </p>
+                        <h1>
+                            Welcome to GreenSpace WebOS
+                        </h1>
 
-                            <h1>
-                                Welcome to GreenSpace WebOS
-                            </h1>
+                        <p>
+                            GreenSpace WebOS is a browser-based desktop
+                            environment being created for the Hack Club
+                            WebOS 1 mission.
+                        </p>
 
-                            <p>
-                                This is a browser-based desktop environment being
-                                created for the Hack Club WebOS 1 mission.
-                            </p>
+                        <p>
+                            The desktop now supports multiple application
+                            windows. Open Notes and Nature using their desktop
+                            icons, then click between the windows to change
+                            which application is active.
+                        </p>
 
-                            <p>
-                                During the next development hours, this desktop
-                                will gain working applications, draggable windows,
-                                a Start menu, saved notes, themes, and other
-                                interactive features.
-                            </p>
+                        <div class="system-card">
+                            <span
+                                class="status-dot"
+                                aria-hidden="true"
+                            ></span>
 
-                            <div class = "system-card">
-                                <span class = "status-dot" aria-hidden = "true"></span>
-
-                                <div>
-                                    <strong>System status</strong>
-                                    <span>Desktop is running normally</span>
-                                </div>
+                            <div>
+                                <strong>System status</strong>
+                                <span>
+                                    Multiple applications are available
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <footer class = "taskbar">
-                <button
-                    id = "start-button"
-                    class = "start-button"
-                    type = "button"
-                    aria-label = "Open Start menu"
-                >
-                    <span class = "start-logo" aria-hidden = "true">
-                        G
-                    </span>
-
-                    <span class = "start-text">
-                        Start
-                    </span>
-                </button>
+        <!-- =====================================================
+             Notes application
+             ===================================================== -->
+        <section
+            id="notes-window"
+            class="app-window hidden"
+            data-window
+            data-app-title="Notes"
+            data-app-icon="📝"
+            aria-label="Notes application"
+        >
+            <header class="window-header">
+                <div class="window-title">
+                    <span aria-hidden="true">📝</span>
+                    <span>Notes</span>
+                </div>
 
                 <div
-                    class = "taskbar-applications"
-                    aria-label = "Running applications"
+                    class="window-controls"
+                    aria-label="Window controls"
                 >
                     <button
-                        class = "taskbar-app active"
-                        type = "button"
-                        aria-label = "Welcome application"
+                        class="window-control"
+                        type="button"
+                        aria-label="Minimize Notes"
+                        title="Minimize will be added in Commit 4"
+                        disabled
                     >
-                        <span aria-hidden = "true">🌎</span>
-                        <span class = "taskbar-app-name">Welcome</span>
+                        −
+                    </button>
+
+                    <button
+                        class="window-control"
+                        type="button"
+                        aria-label="Maximize Notes"
+                        title="Maximize will be added in Commit 4"
+                        disabled
+                    >
+                        □
+                    </button>
+
+                    <button
+                        class="window-control close-control"
+                        type="button"
+                        data-close-window
+                        aria-label="Close Notes"
+                        title="Close Notes"
+                    >
+                        ×
                     </button>
                 </div>
+            </header>
 
-                <div class = "system-tray">
-                    <span
-                        class = "tray-icon"
-                        title = "Internet connected"
-                        aria-label = "Internet connected"
+            <div class="window-content">
+                <div class="application-heading">
+                    <div
+                        class="application-heading-icon"
+                        aria-hidden="true"
                     >
-                        📶
-                    </span>
+                        📝
+                    </div>
 
-                    <span
-                        class = "tray-icon"
-                        title = "Sound"
-                        aria-label = "Sound"
-                    >
-                        🔊
-                    </span>
+                    <div>
+                        <p class="eyebrow">
+                            QUICK NOTES
+                        </p>
 
-                    <div class = "clock" aria live = "polite">
-                        <span id = "clock-time">
-                            --:--
-                        </span>
+                        <h2>
+                            Notes preview
+                        </h2>
 
-                        <span id = "clock-date">
-                            ---
-                        </span>
+                        <p>
+                            This is the visual foundation of the Notes
+                            application. Saving and editing notes will be
+                            implemented in a later development commit.
+                        </p>
                     </div>
                 </div>
-            </footer>
-        </main>
 
-        <script src = "srcipt.js"></script>
-    </body>
+                <div class="notes-preview">
+                    <div class="note-card">
+                        <span class="note-number">01</span>
+
+                        <div>
+                            <strong>Build the desktop foundation</strong>
+                            <p>
+                                Create the wallpaper, application icons,
+                                taskbar, and system clock.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="note-card">
+                        <span class="note-number">02</span>
+
+                        <div>
+                            <strong>Create reusable windows</strong>
+                            <p>
+                                Allow applications to open, close, and move
+                                to the front when selected.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="note-card">
+                        <span class="note-number">03</span>
+
+                        <div>
+                            <strong>Add dragging next</strong>
+                            <p>
+                                Commit 3 will make every application window
+                                draggable by its title bar.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="coming-soon-card">
+                    <span aria-hidden="true">💾</span>
+
+                    <div>
+                        <strong>Coming later</strong>
+                        <p>
+                            Editable notes and browser storage will be added
+                            after the window system is complete.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             Nature application
+             ===================================================== -->
+        <section
+            id="nature-window"
+            class="app-window hidden"
+            data-window
+            data-app-title="Nature"
+            data-app-icon="🌿"
+            aria-label="Nature application"
+        >
+            <header class="window-header">
+                <div class="window-title">
+                    <span aria-hidden="true">🌿</span>
+                    <span>Nature</span>
+                </div>
+
+                <div
+                    class="window-controls"
+                    aria-label="Window controls"
+                >
+                    <button
+                        class="window-control"
+                        type="button"
+                        aria-label="Minimize Nature"
+                        title="Minimize will be added in Commit 4"
+                        disabled
+                    >
+                        −
+                    </button>
+
+                    <button
+                        class="window-control"
+                        type="button"
+                        aria-label="Maximize Nature"
+                        title="Maximize will be added in Commit 4"
+                        disabled
+                    >
+                        □
+                    </button>
+
+                    <button
+                        class="window-control close-control"
+                        type="button"
+                        data-close-window
+                        aria-label="Close Nature"
+                        title="Close Nature"
+                    >
+                        ×
+                    </button>
+                </div>
+            </header>
+
+            <div class="window-content">
+                <div class="application-heading">
+                    <div
+                        class="application-heading-icon nature-heading-icon"
+                        aria-hidden="true"
+                    >
+                        🌳
+                    </div>
+
+                    <div>
+                        <p class="eyebrow">
+                            GREENSPACE COLLECTION
+                        </p>
+
+                        <h2>
+                            Small actions matter
+                        </h2>
+
+                        <p>
+                            Nature is the visual identity of this WebOS.
+                            This application highlights practical ways to
+                            protect the environment.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="nature-grid">
+                    <article class="nature-card">
+                        <div
+                            class="nature-card-icon"
+                            aria-hidden="true"
+                        >
+                            🌱
+                        </div>
+
+                        <h3>Plant</h3>
+
+                        <p>
+                            Native plants support local insects, birds,
+                            soil, and water systems.
+                        </p>
+                    </article>
+
+                    <article class="nature-card">
+                        <div
+                            class="nature-card-icon"
+                            aria-hidden="true"
+                        >
+                            💧
+                        </div>
+
+                        <h3>Conserve</h3>
+
+                        <p>
+                            Reducing wasted water protects ecosystems and
+                            lowers the energy used for treatment.
+                        </p>
+                    </article>
+
+                    <article class="nature-card">
+                        <div
+                            class="nature-card-icon"
+                            aria-hidden="true"
+                        >
+                            ♻️
+                        </div>
+
+                        <h3>Reuse</h3>
+
+                        <p>
+                            Reusing an item usually avoids more waste than
+                            disposing of it and buying a replacement.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             Start menu placeholder
+             ===================================================== -->
+        <section
+            id="start-message"
+            class="desktop-message hidden"
+            role="status"
+            aria-live="polite"
+        >
+            <span aria-hidden="true">🚧</span>
+
+            <div>
+                <strong>Start menu is under construction</strong>
+
+                <span>
+                    A complete application launcher will be added in Commit 5.
+                </span>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             Taskbar
+             ===================================================== -->
+        <footer class="taskbar">
+            <button
+                id="start-button"
+                class="start-button"
+                type="button"
+                aria-label="Open Start menu"
+            >
+                <span class="start-logo" aria-hidden="true">
+                    G
+                </span>
+
+                <span class="start-text">
+                    Start
+                </span>
+            </button>
+
+            <div
+                id="taskbar-applications"
+                class="taskbar-applications"
+                aria-label="Running applications"
+            ></div>
+
+            <div class="system-tray">
+                <span
+                    class="tray-icon"
+                    title="Internet connected"
+                    aria-label="Internet connected"
+                >
+                    📶
+                </span>
+
+                <span
+                    class="tray-icon"
+                    title="Sound"
+                    aria-label="Sound"
+                >
+                    🔊
+                </span>
+
+                <div class="clock" aria-live="polite">
+                    <span id="clock-time">
+                        --:--
+                    </span>
+
+                    <span id="clock-date">
+                        ---
+                    </span>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
 </html>
