@@ -14,12 +14,37 @@ const startMenu = document.getElementById("start-menu");
 const startSearch = document.getElementById("start-search");
 const startAppList = document.getElementById("start-app-list");
 const startAppCount = document.getElementById("start-app-count");
-
 const startNoResults = document.getElementById(
     "start-no-results"
 );
-
 const powerButton = document.getElementById("power-button");
+
+const notesTitle = document.getElementById("notes-title");
+const notesEditor = document.getElementById("notes-editor");
+
+const saveNoteButton = document.getElementById(
+    "save-note-button"
+);
+
+const clearNoteButton = document.getElementById(
+    "clear-note-button"
+);
+
+const notesSaveState = document.getElementById(
+    "notes-save-state"
+);
+
+const notesSaveMessage = document.getElementById(
+    "notes-save-message"
+);
+
+const notesWordCount = document.getElementById(
+    "notes-word-count"
+);
+
+const notesCharacterCount = document.getElementById(
+    "notes-character-count"
+);
 
 const taskbarApplications = document.getElementById(
     "taskbar-applications"
@@ -34,12 +59,15 @@ const openWindowButtons = document.querySelectorAll(
 );
 
 /* =========================================================
-   Window state
+   Application state
    ========================================================= */
 
 let highestWindowZIndex = 20;
+let notesAutoSaveTimeoutId = null;
 
 const normalWindowStates = new Map();
+
+const NOTES_STORAGE_KEY = "greenspace-webos-note";
 
 const TASKBAR_HEIGHT = 64;
 const MINIMUM_VISIBLE_WINDOW_WIDTH = 120;
@@ -102,7 +130,7 @@ function parsePixelValue(value) {
 }
 
 /* =========================================================
-   Safe positioning
+   Safe window positioning
    ========================================================= */
 
 function getSafeWindowPosition(
@@ -161,6 +189,7 @@ function focusWindow(windowElement) {
     clearActiveWindows();
 
     windowElement.classList.add("active-window");
+
     windowElement.style.zIndex = String(
         highestWindowZIndex
     );
@@ -199,7 +228,7 @@ function focusHighestVisibleWindow() {
 }
 
 /* =========================================================
-   Open and close
+   Open and close windows
    ========================================================= */
 
 function openWindow(windowId) {
@@ -410,7 +439,7 @@ function toggleMaximizeWindow(windowElement) {
 }
 
 /* =========================================================
-   Dragging
+   Draggable windows
    ========================================================= */
 
 function makeWindowDraggable(windowElement) {
@@ -477,14 +506,20 @@ function makeWindowDraggable(windowElement) {
             return;
         }
 
+        const proposedLeft =
+            windowStartLeft +
+            event.clientX -
+            pointerStartX;
+
+        const proposedTop =
+            windowStartTop +
+            event.clientY -
+            pointerStartY;
+
         const safePosition = getSafeWindowPosition(
             windowElement,
-            windowStartLeft +
-                event.clientX -
-                pointerStartX,
-            windowStartTop +
-                event.clientY -
-                pointerStartY
+            proposedLeft,
+            proposedTop
         );
 
         windowElement.style.left =
@@ -500,6 +535,7 @@ function makeWindowDraggable(windowElement) {
         }
 
         dragging = false;
+
         windowElement.classList.remove("dragging");
 
         if (
@@ -533,7 +569,7 @@ function makeWindowDraggable(windowElement) {
 }
 
 /* =========================================================
-   Resize protection
+   Browser resize protection
    ========================================================= */
 
 function keepWindowInsideDesktop(windowElement) {
@@ -756,7 +792,9 @@ function filterStartApplications() {
     });
 
     startAppCount.textContent =
-        `${visibleCount} ${visibleCount === 1 ? "app" : "apps"}`;
+        `${visibleCount} ${
+            visibleCount === 1 ? "app" : "apps"
+        }`;
 
     startNoResults.classList.toggle(
         "hidden",
@@ -769,11 +807,224 @@ function handlePowerButtonClick() {
         "span:last-child"
     );
 
+    if (!powerButtonLabel) {
+        return;
+    }
+
     powerButtonLabel.textContent = "Unavailable";
 
     window.setTimeout(() => {
         powerButtonLabel.textContent = "Power";
     }, 1800);
+}
+
+/* =========================================================
+   Notes application
+   ========================================================= */
+
+function getCurrentNote() {
+    return {
+        title: notesTitle.value.trim(),
+        content: notesEditor.value,
+        savedAt: new Date().toISOString()
+    };
+}
+
+function updateNoteStatistics() {
+    const content = notesEditor.value;
+    const trimmedContent = content.trim();
+
+    const wordCount = trimmedContent
+        ? trimmedContent.split(/\s+/).length
+        : 0;
+
+    notesWordCount.textContent = String(wordCount);
+
+    notesCharacterCount.textContent = String(
+        content.length
+    );
+}
+
+function updateNoteSaveStatus(status) {
+    notesSaveState.classList.remove(
+        "unsaved",
+        "saving"
+    );
+
+    if (status === "unsaved") {
+        notesSaveState.classList.add("unsaved");
+        notesSaveMessage.textContent = "Unsaved";
+        return;
+    }
+
+    if (status === "saving") {
+        notesSaveState.classList.add("saving");
+        notesSaveMessage.textContent = "Saving...";
+        return;
+    }
+
+    if (status === "saved") {
+        notesSaveMessage.textContent = "Saved";
+        return;
+    }
+
+    notesSaveMessage.textContent = "Ready";
+}
+
+function saveNote() {
+    updateNoteSaveStatus("saving");
+
+    const note = getCurrentNote();
+
+    try {
+        localStorage.setItem(
+            NOTES_STORAGE_KEY,
+            JSON.stringify(note)
+        );
+
+        updateNoteSaveStatus("saved");
+    } catch (error) {
+        console.error("Unable to save note.", error);
+
+        notesSaveState.classList.add("unsaved");
+        notesSaveMessage.textContent = "Save failed";
+    }
+}
+
+function scheduleNoteAutoSave() {
+    updateNoteSaveStatus("unsaved");
+
+    if (notesAutoSaveTimeoutId !== null) {
+        window.clearTimeout(
+            notesAutoSaveTimeoutId
+        );
+    }
+
+    notesAutoSaveTimeoutId = window.setTimeout(
+        () => {
+            saveNote();
+            notesAutoSaveTimeoutId = null;
+        },
+        700
+    );
+}
+
+function loadSavedNote() {
+    let savedNoteJson;
+
+    try {
+        savedNoteJson = localStorage.getItem(
+            NOTES_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to access browser storage.",
+            error
+        );
+
+        updateNoteStatistics();
+        updateNoteSaveStatus("ready");
+        return;
+    }
+
+    if (!savedNoteJson) {
+        updateNoteStatistics();
+        updateNoteSaveStatus("ready");
+        return;
+    }
+
+    try {
+        const savedNote = JSON.parse(savedNoteJson);
+
+        notesTitle.value =
+            typeof savedNote.title === "string"
+                ? savedNote.title
+                : "";
+
+        notesEditor.value =
+            typeof savedNote.content === "string"
+                ? savedNote.content
+                : "";
+
+        updateNoteStatistics();
+        updateNoteSaveStatus("saved");
+    } catch (error) {
+        console.error(
+            "Unable to load the saved note.",
+            error
+        );
+
+        localStorage.removeItem(NOTES_STORAGE_KEY);
+
+        notesTitle.value = "";
+        notesEditor.value = "";
+
+        updateNoteStatistics();
+        updateNoteSaveStatus("ready");
+    }
+}
+
+function clearNote() {
+    const noteHasContent =
+        notesTitle.value.trim() !== "" ||
+        notesEditor.value.trim() !== "";
+
+    if (!noteHasContent) {
+        notesTitle.focus();
+        return;
+    }
+
+    const userConfirmed = window.confirm(
+        "Clear this note? This action cannot be undone."
+    );
+
+    if (!userConfirmed) {
+        return;
+    }
+
+    if (notesAutoSaveTimeoutId !== null) {
+        window.clearTimeout(
+            notesAutoSaveTimeoutId
+        );
+
+        notesAutoSaveTimeoutId = null;
+    }
+
+    notesTitle.value = "";
+    notesEditor.value = "";
+
+    try {
+        localStorage.removeItem(NOTES_STORAGE_KEY);
+    } catch (error) {
+        console.error(
+            "Unable to remove the saved note.",
+            error
+        );
+    }
+
+    updateNoteStatistics();
+    updateNoteSaveStatus("ready");
+
+    notesTitle.focus();
+}
+
+function handleNotesKeyboardShortcut(event) {
+    const userPressedSave =
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "s";
+
+    if (!userPressedSave) {
+        return;
+    }
+
+    const notesWindow = getWindowById("notes-window");
+
+    if (!notesWindow || !isWindowVisible(notesWindow)) {
+        return;
+    }
+
+    event.preventDefault();
+    saveNote();
 }
 
 /* =========================================================
@@ -833,6 +1084,36 @@ function registerStartMenuEvents() {
     );
 }
 
+function registerNotesEvents() {
+    notesTitle.addEventListener(
+        "input",
+        scheduleNoteAutoSave
+    );
+
+    notesEditor.addEventListener(
+        "input",
+        () => {
+            updateNoteStatistics();
+            scheduleNoteAutoSave();
+        }
+    );
+
+    saveNoteButton.addEventListener(
+        "click",
+        saveNote
+    );
+
+    clearNoteButton.addEventListener(
+        "click",
+        clearNote
+    );
+
+    document.addEventListener(
+        "keydown",
+        handleNotesKeyboardShortcut
+    );
+}
+
 function registerWindowEvents() {
     applicationWindows.forEach((windowElement) => {
         const dragHandle = windowElement.querySelector(
@@ -875,6 +1156,7 @@ function registerWindowEvents() {
                 "click",
                 (event) => {
                     event.stopPropagation();
+
                     toggleMaximizeWindow(
                         windowElement
                     );
@@ -954,6 +1236,9 @@ function initializeWebOS() {
     registerApplicationLaunchEvents();
     registerStartMenuEvents();
     registerWindowEvents();
+    registerNotesEvents();
+
+    loadSavedNote();
     initializeOpenWindows();
 
     window.addEventListener(
@@ -962,7 +1247,11 @@ function initializeWebOS() {
     );
 
     updateClock();
-    window.setInterval(updateClock, 1000);
+
+    window.setInterval(
+        updateClock,
+        1000
+    );
 }
 
 initializeWebOS();

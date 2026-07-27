@@ -68,7 +68,9 @@ body {
     color: white;
 }
 
-button {
+button,
+input,
+textarea {
     font: inherit;
 }
 
@@ -250,7 +252,8 @@ button:not(:disabled) {
     top: 105px;
     left: 255px;
 
-    width: min(660px, calc(100vw - 290px));
+    width: min(700px, calc(100vw - 290px));
+    height: min(540px, calc(100vh - 145px));
 }
 
 #nature-window {
@@ -271,8 +274,8 @@ button:not(:disabled) {
 
     width: calc(100vw - 16px) !important;
     height: calc(
-        100vh - 
-        var(--taskbar-height) - 
+        100vh -
+        var(--taskbar-height) -
         16px
     ) !important;
 
@@ -291,7 +294,7 @@ button:not(:disabled) {
     animation: none;
 
     box-shadow:
-        inset- 34px 95px rgba(0, 0, 0, 0.48),
+        0 34px 95px rgba(0, 0, 0, 0.48),
         0 8px 24px rgba(0, 0, 0, 0.28);
 }
 
@@ -339,6 +342,7 @@ button:not(:disabled) {
     display: flex;
     height: 100%;
 }
+
 .window-controls,
 .window-controls button {
     cursor: default;
@@ -371,11 +375,6 @@ button:not(:disabled) {
 
     outline: 2px solid var(--accent);
     outline-offset: -3px;
-}
-
-.window-control:disabled {
-    cursor: not-allowed;
-    opacity: 0.34;
 }
 
 .close-control:not(:disabled):hover {
@@ -577,71 +576,244 @@ button:not(:disabled) {
    Notes application
    ========================================================= */
 
-.notes-preview {
-    display: grid;
-    gap: 10px;
-}
-
-.note-card {
-    display: grid;
-
-    grid-template-columns: 42px minmax(0, 1fr);
-    gap: 13px;
-
-    padding: 14px;
-
-    border: 1px solid rgba(66, 82, 107, 0.13);
-    border-radius: 12px;
-
-    background: rgba(238, 242, 249, 0.74);
-}
-
-.note-card p {
-    margin: 4px 0 0;
-
-    font-size: 0.86rem;
-}
-
-.note-number {
-    display: grid;
-
-    width: 36px;
-    height: 36px;
-
-    place-items: center;
-
-    border-radius: 10px;
-
-    background: rgba(39, 135, 95, 0.11);
-    color: var(--accent);
-
-    font-size: 0.76rem;
-    font-weight: 850;
-}
-
-.coming-soon-card {
+.notes-window-content {
     display: flex;
 
-    margin-top: 16px;
-    padding: 14px;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notes-app-heading {
+    display: flex;
 
     align-items: flex-start;
+    justify-content: space-between;
+    gap: 22px;
+}
+
+.notes-app-heading h2 {
+    margin-bottom: 7px;
+}
+
+.notes-app-heading p:last-child {
+    margin-bottom: 0;
+}
+
+.notes-save-state {
+    display: flex;
+
+    min-width: 100px;
+    padding: 8px 11px;
+
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border: 1px solid rgba(39, 135, 95, 0.16);
+    border-radius: 999px;
+
+    background: rgba(39, 135, 95, 0.07);
+    color: var(--muted-text);
+
+    font-size: 0.76rem;
+    white-space: nowrap;
+}
+
+.notes-save-dot {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #2bad68;
+    box-shadow: 0 0 0 3px rgba(43, 173, 104, 0.12);
+}
+
+.notes-save-state.saving .notes-save-dot {
+    background: #d39e2a;
+    box-shadow: 0 0 0 3px rgba(211, 158, 42, 0.13);
+}
+
+.notes-save-state.unsaved .notes-save-dot {
+    background: #d16b45;
+    box-shadow: 0 0 0 3px rgba(209, 107, 69, 0.13);
+}
+
+.notes-toolbar {
+    display: flex;
+
+    padding: 10px;
+
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
 
-    border: 1px dashed rgba(64, 80, 105, 0.3);
-    border-radius: 12px;
+    border: 1px solid rgba(66, 82, 107, 0.13);
+    border-radius: 13px;
 
-    background: rgba(255, 255, 255, 0.53);
+    background: rgba(238, 242, 249, 0.68);
 }
 
-.coming-soon-card > span {
-    font-size: 1.5rem;
+.notes-document-name {
+    display: flex;
+
+    min-width: 0;
+
+    flex: 1;
+    align-items: center;
+    gap: 8px;
 }
 
-.coming-soon-card p {
-    margin: 3px 0 0;
+.notes-document-name label {
+    color: var(--muted-text);
 
-    font-size: 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.notes-title-input {
+    min-width: 100px;
+    width: min(260px, 100%);
+    height: 36px;
+    padding: 0 10px;
+
+    border: 1px solid transparent;
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--window-text);
+
+    outline: none;
+
+    font-weight: 700;
+}
+
+.notes-title-input:hover {
+    border-color: rgba(61, 79, 101, 0.16);
+}
+
+.notes-title-input:focus {
+    border-color: var(--accent);
+
+    background: white;
+
+    box-shadow:
+        0 0 0 3px rgba(39, 135, 95, 0.12);
+}
+
+.notes-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.notes-button {
+    display: flex;
+
+    height: 36px;
+    padding: 0 12px;
+
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border-radius: 9px;
+
+    font-size: 0.79rem;
+    font-weight: 750;
+}
+
+.notes-save-button {
+    border: 1px solid var(--accent);
+
+    background: var(--accent);
+    color: white;
+}
+
+.notes-save-button:hover,
+.notes-save-button:focus-visible {
+    background: var(--accent-dark);
+    outline: none;
+}
+
+.notes-clear-button {
+    border: 1px solid rgba(217, 74, 87, 0.18);
+
+    background: rgba(217, 74, 87, 0.06);
+    color: #b63744;
+}
+
+.notes-clear-button:hover,
+.notes-clear-button:focus-visible {
+    background: rgba(217, 74, 87, 0.12);
+    outline: none;
+}
+
+.notes-editor {
+    width: 100%;
+    min-height: 230px;
+    padding: 17px;
+
+    flex: 1;
+
+    resize: none;
+
+    border: 1px solid rgba(61, 79, 101, 0.19);
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            rgba(255, 255, 255, 0.94),
+            rgba(250, 252, 255, 0.96)
+        );
+
+    color: var(--window-text);
+
+    outline: none;
+
+    font-family:
+        "Segoe UI",
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    font-size: 0.94rem;
+    line-height: 1.65;
+}
+
+.notes-editor:focus {
+    border-color: var(--accent);
+
+    box-shadow:
+        0 0 0 3px rgba(39, 135, 95, 0.12);
+}
+
+.notes-editor::placeholder {
+    color: #8a94a3;
+}
+
+.notes-footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    color: var(--muted-text);
+
+    font-size: 0.75rem;
+}
+
+.notes-statistics {
+    display: flex;
+    gap: 14px;
+}
+
+.notes-statistics strong {
+    color: var(--window-text);
+}
+
+.notes-shortcut {
+    color: #7b8594;
 }
 
 /* =========================================================
@@ -696,7 +868,7 @@ button:not(:disabled) {
     font-size: 0.86rem;
 }
 
-   /* =========================================================
+/* =========================================================
    Start menu
    ========================================================= */
 
@@ -1141,7 +1313,9 @@ button:not(:disabled) {
 
 .taskbar-app.active {
     border-color: rgba(117, 213, 159, 0.46);
-    box-shadow: inset 0 -3px 0 rgba(98, 205, 144, 0.78);
+
+    box-shadow:
+        inset 0 -3px 0 rgba(98, 205, 144, 0.78);
 }
 
 .taskbar-app.minimized {
@@ -1230,29 +1404,17 @@ button:not(:disabled) {
     }
 }
 
-@keyframes show-message {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* =========================================================
-   Responsive layout
-   ========================================================= */
-
-@media (perfers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
     .app-window,
     .start-menu {
         animation: none;
         transition: none;
     }
 }
+
+/* =========================================================
+   Responsive layout
+   ========================================================= */
 
 @media (max-width: 850px) {
     #welcome-window,
@@ -1358,6 +1520,37 @@ button:not(:disabled) {
     }
 
     .taskbar-app-name {
+        display: none;
+    }
+
+    .notes-app-heading,
+    .notes-toolbar,
+    .notes-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .notes-save-state {
+        align-self: flex-start;
+    }
+
+    .notes-document-name {
+        width: 100%;
+    }
+
+    .notes-title-input {
+        width: 100%;
+    }
+
+    .notes-actions {
+        width: 100%;
+    }
+
+    .notes-button {
+        flex: 1;
+    }
+
+    .notes-shortcut {
         display: none;
     }
 }

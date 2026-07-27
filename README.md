@@ -6,7 +6,7 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 5 is complete.
+Commit 6 is complete.
 
 The project currently provides:
 
@@ -31,6 +31,16 @@ The project currently provides:
 - Active taskbar-button minimization
 - Working Start menu
 - Start-menu application launcher
+- Working Notes text editor
+- Notes title field
+- Automatic browser saving
+- Manual Save button
+- Clear-note confirmation
+- Word count
+- Character count
+- Saved-status indicator
+- Ctrl + S keyboard shortcut
+- Saved notes restored after refresh
 - Application search
 - Outside-click menu closing
 - Escape-key menu closing
@@ -59,9 +69,19 @@ The Welcome application introduces GreenSpace WebOS and explains the current sta
 
 ### Notes
 
-The Notes application currently displays the project’s development plan as preview cards.
+The Notes application is a working text editor.
 
-Editable notes and browser storage will be added in a later development commit.
+Users can:
+
+- Enter a note title
+- Write note content
+- Save manually
+- Use Ctrl + S
+- Clear the current note
+- See word and character counts
+- Refresh the browser without losing the note
+
+Notes are stored using the browser Local Storage API.
 
 ### Nature
 
@@ -185,6 +205,30 @@ The Start menu closes when:
 2. The user clicks outside the menu
 3. The user presses Escape
 4. The Start button is pressed again
+
+## Notes storage
+
+The Notes application saves one note in browser local storage.
+
+The storage key is:
+
+```javascript
+const NOTES_STORAGE_KEY = "greenspace-webos-note";
+```
+
+The stored value contains:
+
+```javascript
+{
+    title: "Note title",
+    content: "Note content",
+    savedAt: "ISO date and time"
+}
+```
+
+Automatic saving uses a short delay. The note is saved 700 milliseconds after the user stops typing. This avoids writing to local storage after every individual keystroke.
+
+The application also supports manual saving through the Save button or Ctrl + S.
 
 ## Technologies used
 
@@ -487,9 +531,59 @@ The main challenge was distinguishing clicks inside the Start menu from clicks e
 
 The solution was to stop propagation on the Start menu and register a document-level click handler that closes it.
 
-#### Next development hour
+#### Next development Commit
 
-Hour 6 will convert Notes from a preview into a working text editor with browser storage.
+Commit 6 will convert Notes from a preview into a working text editor with browser storage.
+
+---
+
+### Devlog 6 - Working Notes editor
+
+#### Goal
+
+Convert the static Notes preview into a useful WebOS application.
+
+#### Improvements to Commit 5
+
+- Removed hte Notes preview cards
+- Added a real editor interface
+- Added persistent browser storage
+- Added visible save feedback
+- Added keyboard support
+- Improved the Notes layout for mobile screens
+
+#### Work completed
+
+- Added a note title field
+- Added a large text editor
+- Added automatic saving
+- Added manual saving
+- Added Ctrl + S support
+- Added clear confirmation
+- Added word counting
+- Added saved-state feedback
+- Restored saved notes after refreshing the browser
+- Added Local Storage error handling
+
+#### Technical decisions
+
+The Notes application uses browser local storage because it does not require a server or database.
+
+Automatic saving is delaying by 700 milliseconds after typing stops. This technique is called debouncing. It reduces unnecessary storage writes.
+
+The saved note is converted to JSON before storage and parsed back into a JavaScript object when the application loads.
+
+#### Challenges
+
+The main challenge was avoiding a save operation after every keystroke.
+
+A timeout is cleared and restarted whenever the user types. The note is saved only when the user pauses.
+
+Another challenge was distinguishing between Ready, Unsaved, Saving and Saved states. A status element and CSS state classes provide clear feedback.
+
+#### Next development commit
+
+Commit 7 will improve the Nature application with interactive environmental cards or create another original WebOS application.
 
 ## Planned features
 
