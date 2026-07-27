@@ -450,32 +450,150 @@
         <!-- =====================================================
              Start menu placeholder
              ===================================================== -->
-        <section
-            id="start-message"
-            class="desktop-message hidden"
-            role="status"
-            aria-live="polite"
-        >
-            <span aria-hidden="true">🚧</span>
 
-            <div>
-                <strong>Start menu is under construction</strong>
+                <section
+                    id = "start-menu"
+                    class = "start-menu hidden"
+                    aria-label = "Start menu"
+                >
+                    <header class = "start-menu-header">
+                        <div class = "start-user">
+                            <div class = "start-user-avatar" aria-hidden = "true">
+                                G
+                            </div>
 
-                <span>
-                    A complete application launcher will be added in Commit 5.
-                </span>
-            </div>
-        </section>
+                            <div>
+                                <strong>GreenSpace WebOS</strong>
+                                <span>Environmental desktop</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div class = "start-search-container">
+                        <label class = "visually-hidden" for = "start-search">
+                            Search applications
+                        </label>
+
+                        <span class = "start-search-icon" aria-hidden = "true">
+                                🔎
+                        </span>
+
+                        <input
+                            id = "start-search"
+                            class = "start-search"
+                            type = "search"
+                            placeholder = "Search applications"
+                            autocomplete = "off"
+                        >
+                    </div>
+
+                    <div class = "start-menu-section">
+                        <div class = "start-menu-section-heading">
+                            <span>Applications</span>
+                            <span id = "start-app-count">3 apps</span>
+                        </div>
+
+                        <div
+                            id = "start-app-list"
+                            class = "start-app-list"
+                        >
+                            <button
+                                class = "start-app"
+                                type = "button"
+                                data-open-window = "welcome-window"
+                                data-search-name = "welcome home system"
+                            >
+                                <span
+                                    class = "start-app-icon welcome-app-icon"
+                                    aria-hidden = "true"
+                                >
+                                    🌎
+                                </span>
+
+                                <span class = "start-app-text">
+                                    <strong>Welcome</strong>
+                                    <span>System information</span>
+                                </span>
+                            </button>
+
+                            <button
+                                class = "start-app"
+                                type = "button"
+                                data-open-window = "notes-window"
+                                data-search-name = "notes writing editor"
+                            >
+                            <span
+                                class = "start-app-icon notes-app-icon"
+                                aria-hidden = "true"
+                            >
+                                📝
+                            </span>
+
+                            <span class = "start-app-text">
+                                <strong>Notes</strong>
+                                <span>Development notes</span>
+                            </span>
+                        </button>
+
+                        <button
+                            class = "start-app"
+                            type = "button"
+                            data-open-window = "nature-window"
+                            data-search-name = "nature environment plants recycle"
+                        >
+                            <span
+                                class = "start-app-icon nature-app-icon"
+                                aria-hidden = "true"
+                            >
+                                🌿
+                            </span>
+
+                            <span class = "start-app-text">
+                                <strong>Nature</strong>
+                                <span>Environmental collection</span>
+                            </span>
+                        </button>
+                        </div>
+
+                        <p
+                            id = "start-no-results"
+                            class = "start-no-results hidden"
+                            role = "status"
+                        >
+                            No applications match your search.
+                        </p>
+                    </div>
+
+                    <footer class = "start-menu-footer">
+                        <div class = "start-system-status">
+                            <span class = "start-status-dot" aria-hidden = "true"></span>
+
+                            <span>System ready</span>
+                        </div>
+
+                        <button
+                            id = "power-button"
+                            class = "power-button"
+                            type = "button"
+                            title = "power options are not available yet"
+                        >
+                            <span aria-hidden = "true">⏻</span>
+                            <span>Power</span>
+                        </button>
+                    </footer>
+                </section>
 
         <!-- =====================================================
              Taskbar
              ===================================================== -->
         <footer class="taskbar">
             <button
-                id="start-button"
-                class="start-button"
-                type="button"
-                aria-label="Open Start menu"
+                id = "start-button"
+                class = "start-button"
+                type = "button"
+                aria-label = "Open Start menu"
+                aria-controls = "start-menu"
+                aria-expanded = "false"
             >
                 <span class="start-logo" aria-hidden="true">
                     G

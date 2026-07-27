@@ -10,7 +10,16 @@ const clockTime = document.getElementById("clock-time");
 const clockDate = document.getElementById("clock-date");
 
 const startButton = document.getElementById("start-button");
-const startMessage = document.getElementById("start-message");
+const startMenu = document.getElementById("start-menu");
+const startSearch = document.getElementById("start-search");
+const startAppList = document.getElementById("start-app-list");
+const startAppCount = document.getElementById("start-app-count");
+
+const startNoResults = document.getElementById(
+    "start-no-results"
+);
+
+const powerButton = document.getElementById("power-button");
 
 const taskbarApplications = document.getElementById(
     "taskbar-applications"
@@ -29,7 +38,6 @@ const openWindowButtons = document.querySelectorAll(
    ========================================================= */
 
 let highestWindowZIndex = 20;
-let startMessageTimeoutId = null;
 
 const normalWindowStates = new Map();
 
@@ -41,9 +49,6 @@ const MINIMUM_VISIBLE_TITLEBAR_HEIGHT = 48;
    Clock
    ========================================================= */
 
-/**
- * Updates the taskbar clock.
- */
 function updateClock() {
     const currentDate = new Date();
 
@@ -62,53 +67,25 @@ function updateClock() {
    Window state helpers
    ========================================================= */
 
-/**
- * Finds a window by its HTML id.
- *
- * @param {string} windowId
- * @returns {HTMLElement|null}
- */
 function getWindowById(windowId) {
     return document.getElementById(windowId);
 }
 
-/**
- * Returns true when the window is not closed.
- *
- * @param {HTMLElement} windowElement
- * @returns {boolean}
- */
 function isWindowOpen(windowElement) {
-    return !windowElement.classList.contains("hidden") ||
-        isWindowMinimized(windowElement);
+    return (
+        !windowElement.classList.contains("hidden") ||
+        isWindowMinimized(windowElement)
+    );
 }
 
-/**
- * Returns true when the window is minimized.
- *
- * @param {HTMLElement} windowElement
- * @returns {boolean}
- */
 function isWindowMinimized(windowElement) {
     return windowElement.dataset.minimized === "true";
 }
 
-/**
- * Returns true when the window is maximized.
- *
- * @param {HTMLElement} windowElement
- * @returns {boolean}
- */
 function isWindowMaximized(windowElement) {
     return windowElement.dataset.maximized === "true";
 }
 
-/**
- * Returns true when the window is visible on the desktop.
- *
- * @param {HTMLElement} windowElement
- * @returns {boolean}
- */
 function isWindowVisible(windowElement) {
     return (
         !windowElement.classList.contains("hidden") &&
@@ -116,12 +93,6 @@ function isWindowVisible(windowElement) {
     );
 }
 
-/**
- * Converts a CSS pixel value into a number.
- *
- * @param {string} value
- * @returns {number}
- */
 function parsePixelValue(value) {
     const parsedValue = Number.parseFloat(value);
 
@@ -131,17 +102,9 @@ function parsePixelValue(value) {
 }
 
 /* =========================================================
-   Safe window positioning
+   Safe positioning
    ========================================================= */
 
-/**
- * Keeps a window reachable inside the desktop.
- *
- * @param {HTMLElement} windowElement
- * @param {number} proposedLeft
- * @param {number} proposedTop
- * @returns {{left: number, top: number}}
- */
 function getSafeWindowPosition(
     windowElement,
     proposedLeft,
@@ -182,20 +145,12 @@ function getSafeWindowPosition(
    Window focus
    ========================================================= */
 
-/**
- * Removes the active state from every window.
- */
 function clearActiveWindows() {
     applicationWindows.forEach((windowElement) => {
         windowElement.classList.remove("active-window");
     });
 }
 
-/**
- * Moves a visible window above the other windows.
- *
- * @param {HTMLElement} windowElement
- */
 function focusWindow(windowElement) {
     if (!windowElement || !isWindowVisible(windowElement)) {
         return;
@@ -213,9 +168,6 @@ function focusWindow(windowElement) {
     updateTaskbarState();
 }
 
-/**
- * Selects the highest visible window.
- */
 function focusHighestVisibleWindow() {
     const visibleWindows = applicationWindows.filter(
         isWindowVisible
@@ -247,14 +199,9 @@ function focusHighestVisibleWindow() {
 }
 
 /* =========================================================
-   Open and close behavior
+   Open and close
    ========================================================= */
 
-/**
- * Opens, restores, or focuses an application.
- *
- * @param {string} windowId
- */
 function openWindow(windowId) {
     const windowElement = getWindowById(windowId);
 
@@ -276,6 +223,7 @@ function openWindow(windowId) {
 
     if (isWindowMinimized(windowElement)) {
         restoreMinimizedWindow(windowElement);
+        closeStartMenu();
         return;
     }
 
@@ -283,13 +231,9 @@ function openWindow(windowId) {
     windowElement.dataset.minimized = "false";
 
     focusWindow(windowElement);
+    closeStartMenu();
 }
 
-/**
- * Closes an application completely.
- *
- * @param {HTMLElement} windowElement
- */
 function closeWindow(windowElement) {
     if (!windowElement) {
         return;
@@ -318,11 +262,6 @@ function closeWindow(windowElement) {
    Minimize and restore
    ========================================================= */
 
-/**
- * Minimizes an application.
- *
- * @param {HTMLElement} windowElement
- */
 function minimizeWindow(windowElement) {
     if (!windowElement || !isWindowVisible(windowElement)) {
         return;
@@ -341,11 +280,6 @@ function minimizeWindow(windowElement) {
     focusHighestVisibleWindow();
 }
 
-/**
- * Restores a minimized application.
- *
- * @param {HTMLElement} windowElement
- */
 function restoreMinimizedWindow(windowElement) {
     if (!windowElement || !isWindowMinimized(windowElement)) {
         return;
@@ -361,11 +295,6 @@ function restoreMinimizedWindow(windowElement) {
    Maximize and restore
    ========================================================= */
 
-/**
- * Saves a window's normal position and dimensions.
- *
- * @param {HTMLElement} windowElement
- */
 function saveNormalWindowState(windowElement) {
     const computedStyle = window.getComputedStyle(
         windowElement
@@ -379,12 +308,6 @@ function saveNormalWindowState(windowElement) {
     });
 }
 
-/**
- * Updates the maximize button.
- *
- * @param {HTMLElement} windowElement
- * @param {boolean} maximized
- */
 function updateMaximizeButton(
     windowElement,
     maximized
@@ -425,11 +348,6 @@ function updateMaximizeButton(
         `Maximize ${applicationTitle}`;
 }
 
-/**
- * Maximizes a visible window.
- *
- * @param {HTMLElement} windowElement
- */
 function maximizeWindow(windowElement) {
     if (
         !windowElement ||
@@ -448,11 +366,6 @@ function maximizeWindow(windowElement) {
     focusWindow(windowElement);
 }
 
-/**
- * Restores a maximized window.
- *
- * @param {HTMLElement} windowElement
- */
 function restoreMaximizedWindow(windowElement) {
     if (!windowElement || !isWindowMaximized(windowElement)) {
         return;
@@ -487,11 +400,6 @@ function restoreMaximizedWindow(windowElement) {
     focusWindow(windowElement);
 }
 
-/**
- * Switches between maximized and normal states.
- *
- * @param {HTMLElement} windowElement
- */
 function toggleMaximizeWindow(windowElement) {
     if (isWindowMaximized(windowElement)) {
         restoreMaximizedWindow(windowElement);
@@ -505,11 +413,6 @@ function toggleMaximizeWindow(windowElement) {
    Dragging
    ========================================================= */
 
-/**
- * Makes one application window draggable.
- *
- * @param {HTMLElement} windowElement
- */
 function makeWindowDraggable(windowElement) {
     const dragHandle = windowElement.querySelector(
         "[data-drag-handle]"
@@ -522,20 +425,14 @@ function makeWindowDraggable(windowElement) {
         return;
     }
 
-    let isDragging = false;
-
+    let dragging = false;
     let pointerStartX = 0;
     let pointerStartY = 0;
-
     let windowStartLeft = 0;
     let windowStartTop = 0;
 
     function startDragging(event) {
-        const clickedWindowControl = event.target.closest(
-            ".window-control"
-        );
-
-        if (clickedWindowControl) {
+        if (event.target.closest(".window-control")) {
             return;
         }
 
@@ -550,7 +447,7 @@ function makeWindowDraggable(windowElement) {
             return;
         }
 
-        isDragging = true;
+        dragging = true;
 
         pointerStartX = event.clientX;
         pointerStartY = event.clientY;
@@ -570,34 +467,24 @@ function makeWindowDraggable(windowElement) {
         focusWindow(windowElement);
         windowElement.classList.add("dragging");
 
-        dragHandle.setPointerCapture(
-            event.pointerId
-        );
+        dragHandle.setPointerCapture(event.pointerId);
 
         event.preventDefault();
     }
 
     function moveWindow(event) {
-        if (!isDragging) {
+        if (!dragging) {
             return;
         }
 
-        const horizontalMovement =
-            event.clientX - pointerStartX;
-
-        const verticalMovement =
-            event.clientY - pointerStartY;
-
-        const proposedLeft =
-            windowStartLeft + horizontalMovement;
-
-        const proposedTop =
-            windowStartTop + verticalMovement;
-
         const safePosition = getSafeWindowPosition(
             windowElement,
-            proposedLeft,
-            proposedTop
+            windowStartLeft +
+                event.clientX -
+                pointerStartX,
+            windowStartTop +
+                event.clientY -
+                pointerStartY
         );
 
         windowElement.style.left =
@@ -608,18 +495,15 @@ function makeWindowDraggable(windowElement) {
     }
 
     function stopDragging(event) {
-        if (!isDragging) {
+        if (!dragging) {
             return;
         }
 
-        isDragging = false;
-
+        dragging = false;
         windowElement.classList.remove("dragging");
 
         if (
-            dragHandle.hasPointerCapture(
-                event.pointerId
-            )
+            dragHandle.hasPointerCapture(event.pointerId)
         ) {
             dragHandle.releasePointerCapture(
                 event.pointerId
@@ -649,14 +533,9 @@ function makeWindowDraggable(windowElement) {
 }
 
 /* =========================================================
-   Browser resize protection
+   Resize protection
    ========================================================= */
 
-/**
- * Keeps one window reachable after browser resizing.
- *
- * @param {HTMLElement} windowElement
- */
 function keepWindowInsideDesktop(windowElement) {
     if (
         !isWindowVisible(windowElement) ||
@@ -669,18 +548,10 @@ function keepWindowInsideDesktop(windowElement) {
         windowElement
     );
 
-    const currentLeft = parsePixelValue(
-        computedStyle.left
-    );
-
-    const currentTop = parsePixelValue(
-        computedStyle.top
-    );
-
     const safePosition = getSafeWindowPosition(
         windowElement,
-        currentLeft,
-        currentTop
+        parsePixelValue(computedStyle.left),
+        parsePixelValue(computedStyle.top)
     );
 
     windowElement.style.left =
@@ -690,9 +561,6 @@ function keepWindowInsideDesktop(windowElement) {
         `${safePosition.top}px`;
 }
 
-/**
- * Keeps all windows reachable.
- */
 function keepAllWindowsInsideDesktop() {
     applicationWindows.forEach(
         keepWindowInsideDesktop
@@ -703,11 +571,6 @@ function keepAllWindowsInsideDesktop() {
    Taskbar
    ========================================================= */
 
-/**
- * Creates a taskbar button for an application.
- *
- * @param {HTMLElement} windowElement
- */
 function createTaskbarButton(windowElement) {
     const windowId = windowElement.id;
 
@@ -725,9 +588,7 @@ function createTaskbarButton(windowElement) {
     const applicationIcon =
         windowElement.dataset.appIcon || "◻";
 
-    const taskbarButton = document.createElement(
-        "button"
-    );
+    const taskbarButton = document.createElement("button");
 
     taskbarButton.type = "button";
     taskbarButton.className = "taskbar-app";
@@ -749,9 +610,7 @@ function createTaskbarButton(windowElement) {
     taskbarButton.append(icon, title);
 
     taskbarButton.addEventListener("click", () => {
-        const currentWindow = getWindowById(
-            windowId
-        );
+        const currentWindow = getWindowById(windowId);
 
         if (!currentWindow) {
             return;
@@ -777,16 +636,9 @@ function createTaskbarButton(windowElement) {
         focusWindow(currentWindow);
     });
 
-    taskbarApplications.appendChild(
-        taskbarButton
-    );
+    taskbarApplications.appendChild(taskbarButton);
 }
 
-/**
- * Removes a taskbar button.
- *
- * @param {string} windowId
- */
 function removeTaskbarButton(windowId) {
     const taskbarButton = taskbarApplications.querySelector(
         `[data-taskbar-window="${windowId}"]`
@@ -797,9 +649,6 @@ function removeTaskbarButton(windowId) {
     }
 }
 
-/**
- * Updates active and minimized taskbar styles.
- */
 function updateTaskbarState() {
     const taskbarButtons =
         taskbarApplications.querySelectorAll(
@@ -807,11 +656,8 @@ function updateTaskbarState() {
         );
 
     taskbarButtons.forEach((taskbarButton) => {
-        const windowId =
-            taskbarButton.dataset.taskbarWindow;
-
         const windowElement = getWindowById(
-            windowId
+            taskbarButton.dataset.taskbarWindow
         );
 
         const active =
@@ -838,71 +684,172 @@ function updateTaskbarState() {
 }
 
 /* =========================================================
-   Start placeholder
+   Start menu
    ========================================================= */
 
-/**
- * Shows the temporary Start-menu message.
- */
-function showStartMessage() {
-    startMessage.classList.remove("hidden");
+function isStartMenuOpen() {
+    return !startMenu.classList.contains("hidden");
+}
 
-    if (startMessageTimeoutId !== null) {
-        window.clearTimeout(
-            startMessageTimeoutId
-        );
+function openStartMenu() {
+    startMenu.classList.remove("hidden");
+    startButton.classList.add("active");
+
+    startButton.setAttribute(
+        "aria-expanded",
+        "true"
+    );
+
+    startSearch.value = "";
+    filterStartApplications();
+
+    window.requestAnimationFrame(() => {
+        startSearch.focus();
+    });
+}
+
+function closeStartMenu() {
+    startMenu.classList.add("hidden");
+    startButton.classList.remove("active");
+
+    startButton.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+}
+
+function toggleStartMenu() {
+    if (isStartMenuOpen()) {
+        closeStartMenu();
+        return;
     }
 
-    startMessageTimeoutId = window.setTimeout(
-        () => {
-            startMessage.classList.add("hidden");
-            startMessageTimeoutId = null;
-        },
-        3500
+    openStartMenu();
+}
+
+function filterStartApplications() {
+    const searchText =
+        startSearch.value.trim().toLowerCase();
+
+    const startApps = Array.from(
+        startAppList.querySelectorAll(".start-app")
     );
+
+    let visibleCount = 0;
+
+    startApps.forEach((startApp) => {
+        const searchableName = (
+            startApp.dataset.searchName || ""
+        ).toLowerCase();
+
+        const matchesSearch =
+            searchableName.includes(searchText);
+
+        startApp.classList.toggle(
+            "hidden",
+            !matchesSearch
+        );
+
+        if (matchesSearch) {
+            visibleCount += 1;
+        }
+    });
+
+    startAppCount.textContent =
+        `${visibleCount} ${visibleCount === 1 ? "app" : "apps"}`;
+
+    startNoResults.classList.toggle(
+        "hidden",
+        visibleCount !== 0
+    );
+}
+
+function handlePowerButtonClick() {
+    const powerButtonLabel = powerButton.querySelector(
+        "span:last-child"
+    );
+
+    powerButtonLabel.textContent = "Unavailable";
+
+    window.setTimeout(() => {
+        powerButtonLabel.textContent = "Power";
+    }, 1800);
 }
 
 /* =========================================================
    Event registration
    ========================================================= */
 
-/**
- * Registers desktop icon events.
- */
-function registerDesktopIconEvents() {
+function registerApplicationLaunchEvents() {
     openWindowButtons.forEach((button) => {
         button.addEventListener("click", () => {
-            const windowId =
-                button.dataset.openWindow;
-
-            openWindow(windowId);
+            openWindow(button.dataset.openWindow);
         });
     });
 }
 
-/**
- * Registers window-control and dragging events.
- */
+function registerStartMenuEvents() {
+    startButton.addEventListener(
+        "click",
+        (event) => {
+            event.stopPropagation();
+            toggleStartMenu();
+        }
+    );
+
+    startMenu.addEventListener(
+        "click",
+        (event) => {
+            event.stopPropagation();
+        }
+    );
+
+    startSearch.addEventListener(
+        "input",
+        filterStartApplications
+    );
+
+    powerButton.addEventListener(
+        "click",
+        handlePowerButtonClick
+    );
+
+    document.addEventListener(
+        "click",
+        closeStartMenu
+    );
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+            if (
+                event.key === "Escape" &&
+                isStartMenuOpen()
+            ) {
+                closeStartMenu();
+                startButton.focus();
+            }
+        }
+    );
+}
+
 function registerWindowEvents() {
     applicationWindows.forEach((windowElement) => {
         const dragHandle = windowElement.querySelector(
             "[data-drag-handle]"
         );
 
-        const minimizeButton =
-            windowElement.querySelector(
-                "[data-minimize-window]"
-            );
+        const minimizeButton = windowElement.querySelector(
+            "[data-minimize-window]"
+        );
 
-        const maximizeButton =
-            windowElement.querySelector(
-                "[data-maximize-window]"
-            );
+        const maximizeButton = windowElement.querySelector(
+            "[data-maximize-window]"
+        );
 
-        const closeButton =
-            windowElement.querySelector(
-                "[data-close-window]"
-            );
+        const closeButton = windowElement.querySelector(
+            "[data-close-window]"
+        );
 
         windowElement.addEventListener(
             "pointerdown",
@@ -928,7 +875,6 @@ function registerWindowEvents() {
                 "click",
                 (event) => {
                     event.stopPropagation();
-
                     toggleMaximizeWindow(
                         windowElement
                     );
@@ -973,20 +919,13 @@ function registerWindowEvents() {
    Initialization
    ========================================================= */
 
-/**
- * Initializes application states and taskbar buttons.
- */
 function initializeOpenWindows() {
     applicationWindows.forEach((windowElement) => {
-        if (!windowElement.dataset.minimized) {
-            windowElement.dataset.minimized =
-                "false";
-        }
+        windowElement.dataset.minimized =
+            windowElement.dataset.minimized || "false";
 
-        if (!windowElement.dataset.maximized) {
-            windowElement.dataset.maximized =
-                "false";
-        }
+        windowElement.dataset.maximized =
+            windowElement.dataset.maximized || "false";
 
         updateMaximizeButton(
             windowElement,
@@ -1011,18 +950,11 @@ function initializeOpenWindows() {
     }
 }
 
-/**
- * Starts GreenSpace WebOS.
- */
 function initializeWebOS() {
-    registerDesktopIconEvents();
+    registerApplicationLaunchEvents();
+    registerStartMenuEvents();
     registerWindowEvents();
     initializeOpenWindows();
-
-    startButton.addEventListener(
-        "click",
-        showStartMessage
-    );
 
     window.addEventListener(
         "resize",
@@ -1030,11 +962,7 @@ function initializeWebOS() {
     );
 
     updateClock();
-
-    window.setInterval(
-        updateClock,
-        1000
-    );
+    window.setInterval(updateClock, 1000);
 }
 
 initializeWebOS();

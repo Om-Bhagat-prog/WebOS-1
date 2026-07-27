@@ -6,7 +6,7 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 4 is complete.
+Commit 5 is complete.
 
 The project currently provides:
 
@@ -29,6 +29,13 @@ The project currently provides:
 - Double-click title-bar maximization
 - Saved normal window positions
 - Active taskbar-button minimization
+- Working Start menu
+- Start-menu application launcher
+- Application search
+- Outside-click menu closing
+- Escape-key menu closing
+- Accessible Start-button state
+- Responsive Start-menu layout
 - Dynamic taskbar application buttons
 - Active-window taskbar highlighting
 - A Start button placeholder
@@ -149,6 +156,35 @@ Taskbar buttons now have three behaviors:
 1. Clicking a minimized application restores it.
 2. Clicking an active application minimizes it.
 3. Clicking an inactive visible application brings it to the front.
+
+## Start menu
+
+The temporary Start notification was replaced with a complete appliction launcher.
+
+The Start menu includes:
+
+- User and system information
+- Searchable application list
+- Welcome launcher
+- Notes launcher
+- Nature launcher
+- System-status indicator
+- Power-button placeholder
+
+Desktop icons and Start-menu buttons use the same attribute:
+
+```html
+data-open-window="notes-window"
+```
+
+Because they share this attribute, one JavaScript registration function can launch applications from either location.
+
+The Start menu closes when:
+
+1. An application is opened
+2. The user clicks outside the menu
+3. The user presses Escape
+4. The Start button is pressed again
 
 ## Technologies used
 
@@ -406,6 +442,54 @@ Another challenge was making taskbar buttons perform different actions depending
 #### Next development Commit
 
 Commit 5 will replace the temporary Start message with a complete Start menu and application launcher.
+
+---
+
+### Devlog 5 - Start menu and application launcher
+
+#### Goal
+
+Replace the temporary Start message with a functional application launcher.
+
+#### Improvements to Commit 4
+
+- Removed the temporary under-construction notification
+- Added a complete Start-menu interface
+- Reused the existing application-launch system
+- Added keyboard and outside-click closing
+- Added responsive mobile behavior
+- Improved accessibility state reporting
+
+#### Work completed
+
+- Added a working Start button
+- Added a searchable application list
+- Added launchers for Welcome, Notes, and Nature
+- Added dynamic search-result counting
+- Added a no-results message
+- Added Start-button active styling
+- Added `aria-expanded` updates
+- Added Escape-key menu closing
+- Added outside-click menu closing
+- Added a Power-button placeholder
+
+#### Technical decsions
+
+Desktop icons and Start-menu buttons both use `data-open-window`. This allows the project to register applications launch events with one reusable function.
+
+The Start menu stops click-event propagation so clicking inside it does not trigger the document-level outside-click handler.
+
+The application search compares normalized lowercase text against each application’s `data-search-name` value.
+
+#### Challenges
+
+The main challenge was distinguishing clicks inside the Start menu from clicks elsewhere on the desktop.
+
+The solution was to stop propagation on the Start menu and register a document-level click handler that closes it.
+
+#### Next development hour
+
+Hour 6 will convert Notes from a preview into a working text editor with browser storage.
 
 ## Planned features
 
