@@ -74,12 +74,14 @@
              Welcome application
              ===================================================== -->
         <section
-            id="welcome-window"
-            class="app-window active-window"
+            id = "welcome-window"
+            class = "app-window active-window"
             data-window
-            data-app-title="Welcome"
-            data-app-icon="🌎"
-            aria-label="Welcome application"
+            data-app-title = "Welcome"
+            data-app-icon = "🌎"
+            data-minimized = "false"
+            data-maximized = "false"
+            aria-label = "Welcome application"
         >
             <header
              class="window-header"
@@ -95,21 +97,21 @@
                     aria-label="Window controls"
                 >
                     <button
-                        class="window-control"
-                        type="button"
-                        aria-label="Minimize Welcome"
-                        title="Minimize will be added in Commit 4"
-                        disabled
+                        class = "window-control"
+                        type = "button"
+                        data-minimize-window
+                        aria-label = "Minimize Welcome"
+                        title = "Minimize Welcome"
                     >
                         −
                     </button>
 
                     <button
-                        class="window-control"
-                        type="button"
-                        aria-label="Maximize Welcome"
-                        title="Maximize will be added in Commit 4"
-                        disabled
+                        class = "window-control maximize-control"
+                        type = "button"
+                        data-maximize-window
+                        aria-label = "Maximize Welcome"
+                        title = "Maximize Welcome"
                     >
                         □
                     </button>
@@ -176,12 +178,14 @@
              Notes application
              ===================================================== -->
         <section
-            id="notes-window"
-            class="app-window hidden"
+            id = "notes-window"
+            class = "app-window hidden"
             data-window
-            data-app-title="Notes"
-            data-app-icon="📝"
-            aria-label="Notes application"
+            data-app-title = "Notes"
+            data-app-icon = "📝"
+            data-minimized = "false"
+            data-maximized = "false"
+            aria-label = "Notes application"
         >
             <header
                 class="window-header"
@@ -197,21 +201,21 @@
                     aria-label="Window controls"
                 >
                     <button
-                        class="window-control"
-                        type="button"
-                        aria-label="Minimize Notes"
-                        title="Minimize will be added in Commit 4"
-                        disabled
+                        class = "window-control"
+                        type = "button"
+                        data-minimize-window
+                        aria-label = "Minimize Notes"
+                        title = "Minimize Notes"
                     >
                         −
                     </button>
 
                     <button
-                        class="window-control"
-                        type="button"
-                        aria-label="Maximize Notes"
-                        title="Maximize will be added in Commit 4"
-                        disabled
+                        class = "window-control maximize-control"
+                        type = "button"
+                        data-maximize-window
+                        aria-label = "Maximize Notes"
+                        title = "Maximize Notes"
                     >
                         □
                     </button>
@@ -310,12 +314,14 @@
              Nature application
              ===================================================== -->
         <section
-            id="nature-window"
-            class="app-window hidden"
+            id = "nature-window"
+            class = "app-window hidden"
             data-window
-            data-app-title="Nature"
-            data-app-icon="🌿"
-            aria-label="Nature application"
+            data-app-title = "Nature"
+            data-app-icon = "🌿"
+            data-minimized = "false"
+            data-maximized = "false"
+            aria-label = "Nature application"
         >
             <header
                 class="window-header"
@@ -330,22 +336,23 @@
                     class="window-controls"
                     aria-label="Window controls"
                 >
+                    
                     <button
-                        class="window-control"
-                        type="button"
-                        aria-label="Minimize Nature"
-                        title="Minimize will be added in Commit 4"
-                        disabled
+                        class = "window-control"
+                        type = "button"
+                        data-minimize-window
+                        aria-label = "Minimize Nature"
+                        title = "Minimize Nature"
                     >
                         −
                     </button>
 
                     <button
-                        class="window-control"
-                        type="button"
-                        aria-label="Maximize Nature"
-                        title="Maximize will be added in Commit 4"
-                        disabled
+                        class = "window-control maximize-control"
+                        type = "button"
+                        data-maximize-window
+                        aria-label = "Maximize Nature"
+                        title = "Maximize Nature"
                     >
                         □
                     </button>

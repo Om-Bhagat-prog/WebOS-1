@@ -2,11 +2,11 @@
 
 GreenSpace WebOS is a browser-based desktop environment created for the Hack Club WebOS 1 mission.
 
-The project is being built in focused one-hour development sessions. Each session introduces a small set of working features and refines the code from earlier sessions.
+The project is being built in focused one-commit development sessions. Each session introduces a small set of working features and refines the code from earlier sessions.
 
 ## Current status
 
-Commit 3 is complete.
+Commit 4 is complete.
 
 The project currently provides:
 
@@ -23,6 +23,12 @@ The project currently provides:
 - Mouse, touch, and pen dragging support
 - Safe window-position boundaries
 - Automatic position correct after browser resizing
+- Window minimization
+- Taskbar restoration
+- Maximize and restore behavior
+- Double-click title-bar maximization
+- Saved normal window positions
+- Active taskbar-button minimization
 - Dynamic taskbar application buttons
 - Active-window taskbar highlighting
 - A Start button placeholder
@@ -34,7 +40,9 @@ Application windows can now be moved by dragging their title bars.
 
 The dragging system keeps enough of each title bar visible so windows remain recoverable. It also prevents title bars from being dragged behind the taskbar.
 
-Minimize and maximize controls remain disabled. Those controls will be implemented during Hour 4 now that dragging and window positioning are stable.
+Minimize, maximize, and restore controls are now functional.
+
+A minimized application remains open and keeps its taskbar button. A maximized application stores its earlier position and dimensions so it can return to its previous layout.
 
 ## Applications
 
@@ -46,7 +54,7 @@ The Welcome application introduces GreenSpace WebOS and explains the current sta
 
 The Notes application currently displays the project’s development plan as preview cards.
 
-Editable notes and browser storage will be added in a later development hour.
+Editable notes and browser storage will be added in a later development commit.
 
 ### Nature
 
@@ -110,6 +118,38 @@ During dragging, JavaScript records:
 
 The browser's pointer-capture feature allows dragging to continue even when the pointer temporarily moves outside the title bar.
 
+## Window states
+
+Each application may be in one of several states:
+
+- Closed
+- Open and visible
+- Open and minimized
+- Open and maximized
+- Active
+- Inactive
+
+Minimized and maximized states are recorded using HTML data attributes:
+
+```html
+data-minimized="false"
+data-maximized="false"
+```
+
+Normal window positions and dimensions are stored in a JavaScript `Map` before maximization:
+
+```javascript
+const normalWindowStates = new Map();
+```
+
+This allows a maximized window to return to its earlier position, width, and height.
+
+Taskbar buttons now have three behaviors:
+
+1. Clicking a minimized application restores it.
+2. Clicking an active application minimizes it.
+3. Clicking an inactive visible application brings it to the front.
+
 ## Technologies used
 
 - HTML5
@@ -130,6 +170,11 @@ The browser's pointer-capture feature allows dragging to continue even when the 
 - CSS `touch-action`
 - Computed CSS styles
 - Safe coordinate calculations
+- JavaScript `Map`
+- Window-state management
+- CSS state classes
+- Dynamic ARIA-label updates
+- Reduced-motion media query
 
 ## Project structure
 
@@ -195,7 +240,7 @@ The main challenge was keeping the desktop usable on both large and small screen
 
 Convert the static desktop into a multi-application interface.
 
-#### Improvements to Hour 1
+#### Improvements to Commit 1
 
 - Removed unnecessary scrolling from the Welcome window
 - Reduced excess content spacing
@@ -246,9 +291,9 @@ The main challenge was synchronizing three different pieces of interface state:
 
 The solution was to keep these operations inside a small group of window-management functions instead of changing classes independently throughout the code.
 
-#### Next development hour
+#### Next development commit
 
-Hour 3 will make application windows draggable.
+Commit 3 will make application windows draggable.
 
 The next version will:
 
@@ -266,7 +311,7 @@ The next version will:
 
 Make all application windows draggable while ensuring they remain reachable inside the desktop.
 
-#### Improvements to Hour 2
+#### Improvements to Commit 2
 
 - Converted static overlapping windows into movable windows
 - Added a clear drag cursor to application title bars
@@ -302,9 +347,9 @@ The drag-start function checks whether the pointer started inside `.window-contr
 
 Another challenge was ensuring windows remain accessible after the browser becomes smaller. A resize listener now checks and corrects every open window's position.
 
-#### Next development hour
+#### Next development commit
 
-Hour 4 will add:
+Commit 4 will add:
 
 - Window minimization
 - Taskbar restoration
@@ -312,15 +357,64 @@ Hour 4 will add:
 - Saved normal window positions
 - Improved taskbar interactions
 
+---
+
+### Devlog 4 — Window minimize, maximize, and restore
+
+#### Goal
+
+Complete the main application-window controls.
+
+#### Improvements to Commit 3
+
+- Enabled the previously disabled window controls
+- Prevented maximized windows from being dragged
+- Preserved normal window dimensions before maximizing
+- Improved taskbar interactions
+- Added minimized application indicators
+- Added reduced-motion accessibility support
+
+#### Work completed
+
+- Added working minimize buttons
+- Added taskbar restoration for minimized applications
+- Added maximize controls
+- Added restoration to the previous position and size
+- Added double-click title-bar maximization
+- Changed the maximize icon while a window is maximized
+- Updated accessible labels dynamically
+- Added active taskbar-button minimization
+- Added minimized taskbar styling
+- Reset window state when an application is closed
+
+#### Technical decisions
+
+A minimized application is hidden visually but remains open. Its taskbar button stays available so the application can be restored.
+
+A closed application is different: its taskbar button is removed, and its saved maximized state is cleared.
+
+Before maximizing, the application stores its current left position, top position, width, and height inside a JavaScript `Map`. Restoring the window retrieves these values.
+
+#### Challenges
+
+The main challenge was distinguishing between hidden because closed and hidden because minimized.
+
+The solution was to add a separate `data-minimized` state. The `hidden` class controls visibility, while the data attribute explains why the window is hidden.
+
+Another challenge was making taskbar buttons perform different actions depending on the current window state.
+
+#### Next development Commit
+
+Commit 5 will replace the temporary Start message with a complete Start menu and application launcher.
+
 ## Planned features
 
-- Minimize and restore behavior
-- Mximize and normal-window restoration
 - Maximize and restore behavior
-- Start menu
 - Editable Notes application
 - Browser note storage
 - Theme selection
 - Additional original features
 - Accessibility refinement
 - Deployment with GitHub Pages
+- Start menu
+- Start-menu application launcher

@@ -214,8 +214,11 @@ button:not(:disabled) {
     opacity: 0.96;
 
     transition:
+        width 180ms ease,
+        height 180ms ease,
         box-shadow 160ms ease,
-        opacity 160ms ease;
+        opacity 160ms ease,
+        border-radius 180ms ease;
 
     will-change: left, top;
 
@@ -244,6 +247,27 @@ button:not(:disabled) {
 .app-window.active-window {
     box-shadow: var(--active-window-shadow);
     opacity: 1;
+}
+
+.app-window.maximized {
+    top: 8px !important;
+    left: 8px !important;
+
+    width: calc(100vw - 16px) !important;
+    height: calc(
+        100vh - 
+        var(--taskbar-height) - 
+        16px
+    ) !important;
+
+    max-width: none;
+    max-height: none;
+
+    border-radius: 13px;
+}
+
+.app-window.maximized .window-header {
+    cursor: default;
 }
 
 .app-window.dragging {
@@ -318,6 +342,11 @@ button:not(:disabled) {
 
 .window-control:not(:disabled):hover {
     background: rgba(41, 54, 76, 0.1);
+}
+
+.maximize-control {
+    font-size: 1rem;
+    font-weight: 700;
 }
 
 .window-control:not(:disabled):focus-visible {
@@ -816,6 +845,23 @@ button:not(:disabled) {
     box-shadow: inset 0 -3px 0 rgba(98, 205, 144, 0.78);
 }
 
+.taskbar-app.minimized {
+    opacity: 0.7;
+}
+
+.taskbar-app.minimized::after {
+    width: 6px;
+    height: 6px;
+
+    margin-left: auto;
+
+    content: "";
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.55);
+}
+
 .taskbar-app:focus-visible {
     outline: 2px solid rgba(117, 213, 159, 0.8);
     outline-offset: 2px;
@@ -888,6 +934,14 @@ button:not(:disabled) {
 /* =========================================================
    Responsive layout
    ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    .app-window,
+    .desktop-message {
+        animation: none;
+        transition: none;
+    }
+}
 
 @media (max-width: 850px) {
     #welcome-window,
