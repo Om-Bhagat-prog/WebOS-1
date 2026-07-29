@@ -1,5 +1,5 @@
 :root {
-    --desktop-background:
+    --desktop-background-forest:
         radial-gradient(
             circle at 15% 15%,
             rgba(103, 189, 132, 0.7),
@@ -16,6 +16,45 @@
             #16473e 48%,
             #142d46
         );
+
+    --desktop-background-sunset:
+        radial-gradient(
+            circle at 18% 20%,
+            rgba(255, 184, 96, 0.68),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 82% 75%,
+            rgba(136, 82, 170, 0.76),
+            transparent 36%
+        ),
+        linear-gradient(
+            135deg,
+            #552f49,
+            #a35450 48%,
+            #40345f
+        );
+
+    --desktop-background-ocean:
+        radial-gradient(
+            circle at 18% 18%,
+            rgba(69, 193, 210, 0.55),
+            transparent 33%
+        ),
+        radial-gradient(
+            circle at 82% 75%,
+            rgba(45, 92, 174, 0.72),
+            transparent 38%
+        ),
+        linear-gradient(
+            135deg,
+            #082d45,
+            #0d5368 48%,
+            #182d59
+        );
+
+    --desktop-background:
+        var(--desktop-background-forest);
 
     --window-background: rgba(250, 252, 255, 0.97);
     --window-header-background: rgba(231, 239, 243, 0.97);
@@ -105,13 +144,17 @@ button:not(:disabled) {
 .desktop {
     position: relative;
 
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     min-height: 520px;
 
     overflow: hidden;
 
-    background: var(--desktop-background);
+    background-color: #102d2a;
+    background-image: var(--desktop-background);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
 }
 
 .desktop::before {
@@ -205,6 +248,91 @@ button:not(:disabled) {
     font-weight: 650;
 }
 
+.desktop[data-wallpaper="forest"] {
+    background-image:
+        var(--desktop-background-forest);
+}
+
+.desktop[data-wallpaper="sunset"] {
+    background-image:
+        var(--desktop-background-sunset);
+}
+
+.desktop[data-wallpaper="ocean"] {
+    background-image:
+        var(--desktop-background-ocean);
+}
+
+.desktop.grid-hidden::before {
+    display: none;
+}
+
+body.dark-theme {
+    --window-background: rgba(26, 37, 48, 0.98);
+    --window-header-background: rgba(35, 48, 60, 0.98);
+    --window-text: #ecf3f5;
+    --muted-text: #aebbc5;
+}
+
+body.dark-theme .window-content,
+body.dark-theme .start-menu,
+body.dark-theme .settings-section,
+body.dark-theme .notes-editor,
+body.dark-theme .notes-toolbar,
+body.dark-theme .nature-challenge {
+    color: var(--window-text);
+}
+
+body.dark-theme .start-menu,
+body.dark-theme .settings-section {
+    background: rgba(30, 42, 53, 0.98);
+}
+
+body.dark-theme .start-menu-header,
+body.dark-theme .start-menu-footer {
+    background: rgba(40, 55, 65, 0.96);
+}
+
+body.dark-theme .start-search,
+body.dark-theme .notes-title-input,
+body.dark-theme .notes-editor {
+    border-color: rgba(255, 255, 255, 0.13);
+    background: rgba(20, 31, 41, 0.9);
+    color: var(--window-text);
+}
+
+body.dark-theme .notes-toolbar,
+body.dark-theme .nature-progress-panel,
+body.dark-theme .nature-challenge {
+    border-color: rgba(255, 255, 255, 0.11);
+    background: rgba(34, 47, 58, 0.84);
+}
+
+body.dark-theme .window-control {
+    color: #dce6eb;
+}
+
+body.dark-theme .wallpaper-option,
+body.dark-theme .theme-option {
+    border-color: rgba(255, 255, 255, 0.12);
+
+    background: rgba(39, 53, 64, 0.9);
+    color: var(--window-text);
+}
+
+body.dark-theme .wallpaper-option.selected,
+body.dark-theme .theme-option.selected {
+    border-color: var(--accent);
+
+    background: rgba(39, 135, 95, 0.18);
+}
+
+body.dark-theme .settings-section {
+    border-color: rgba(255, 255, 255, 0.1);
+
+    background: rgba(34, 47, 58, 0.88);
+}
+
 /* =========================================================
    Application windows
    ========================================================= */
@@ -261,6 +389,14 @@ button:not(:disabled) {
     left: 340px;
 
     width: min(750px, calc(100vw - 375px));
+}
+
+#settings-window {
+    top: 85px;
+    left:300px;
+
+    width: min(720px, calc(100vw - 335px));
+    height: min(560px, calc(100vh - 145px));
 }
 
 .app-window.active-window {
@@ -1059,7 +1195,7 @@ button:not(:disabled) {
 .nature-challenge-content > span {
     color: var(--accent);
 
-    font-size: 0..7rem;
+    font-size: 0.7rem;
     font-weight: 750;
 }
 
@@ -1140,6 +1276,339 @@ button:not(:disabled) {
 .reset-nature-button:focus-visible {
     background: rgba(217, 74, 87, 0.11);
     outline: none;
+}
+
+/* =========================================================
+   Settings application
+   ========================================================= */
+
+.settings-window-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.settings-heading {
+    display: grid;
+
+    grid-template-columns: 74px minmax(0, 1fr);
+    gap: 18px;
+
+    align-items: center;
+}
+
+.settings-heading-icon {
+    display: grid;
+
+    width: 68px;
+    height: 68px;
+
+    place-items: center;
+
+    border-radius: 19px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #7d96a7,
+            #415b6c
+        );
+
+    box-shadow: 0 12px 24px rgba(45, 67, 81, 0.2);
+
+    color: white;
+
+    font-size: 2.2rem;
+}
+
+.settings-heading h2 {
+    margin-bottom: 6px;
+}
+
+.settings-heading p:last-child {
+    margin-bottom: 0;
+}
+
+.settings-section {
+    padding: 15px;
+
+    border: 1px solid rgba(66, 82, 107, 0.13);
+    border-radius: 14px;
+
+    background: rgba(241, 245, 248, 0.75);
+}
+
+.settings-section-heading {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.settings-section-heading > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.settings-section-heading strong {
+    font-size: 0.88rem;
+}
+
+.settings-section-heading span {
+    color: var(--muted-text);
+
+    font-size: 0.76rem;
+}
+
+.wallpaper-options,
+.theme-options {
+    display: grid;
+
+    margin-top: 13px;
+
+    gap: 10px;
+}
+
+.wallpaper-options {
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+}
+
+.theme-options {
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+}
+
+.wallpaper-option,
+.theme-option {
+    display: flex;
+
+    padding: 9px;
+
+    align-items: center;
+    gap: 10px;
+
+    border: 1px solid rgba(66, 82, 107, 0.14);
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--window-text);
+
+    text-align: left;
+}
+
+.wallpaper-option:hover,
+.wallpaper-option:focus-visible,
+.theme-option:hover,
+.theme-option:focus-visible {
+    border-color: rgba(39, 135, 95, 0.43);
+    outline: none;
+}
+
+.wallpaper-option.selected,
+.theme-option.selected {
+    border-color: var(--accent);
+
+    background: rgba(39, 135, 95, 0.09);
+
+    box-shadow:
+        0 0 0 2px rgba(39, 135, 95, 0.09);
+}
+
+.wallpaper-option > span:last-child,
+.theme-option > span:last-child {
+    display: flex;
+
+    min-width: 0;
+
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wallpaper-option strong,
+.theme-option strong {
+    font-size: 0.79rem;
+}
+
+.wallpaper-option small,
+.theme-option small {
+    overflow: hidden;
+
+    color: var(--muted-text);
+
+    font-size: 0.68rem;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.wallpaper-preview {
+    width: 55px;
+    height: 40px;
+
+    flex: 0 0 auto;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9px;
+
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+}
+
+.wallpaper-forest {
+    background:
+        linear-gradient(
+            135deg,
+            #4c9c6c,
+            #15463f 52%,
+            #225f83
+        );
+}
+
+.wallpaper-sunset {
+    background:
+        linear-gradient(
+            135deg,
+            #ec9b62,
+            #a15058 52%,
+            #5c477e
+        );
+}
+
+.wallpaper-ocean {
+    background:
+        linear-gradient(
+            135deg,
+            #1c91a8,
+            #14566c 52%,
+            #29478a
+        );
+}
+
+.theme-preview {
+    display: block;
+
+    width: 56px;
+    height: 40px;
+    padding: 7px;
+
+    flex: 0 0 auto;
+
+    border-radius: 9px;
+}
+
+.theme-preview span {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 5px;
+}
+
+.theme-preview-light {
+    border: 1px solid #d2d9de;
+    background: #e8edf0;
+}
+
+.theme-preview-light span {
+    background: white;
+}
+
+.theme-preview-dark {
+    border: 1px solid #263743;
+    background: #1b2933;
+}
+
+.theme-preview-dark span {
+    background: #334653;
+}
+
+.settings-toggle-section {
+    padding-top: 17px;
+    padding-bottom: 17px;
+}
+
+.settings-switch {
+    position: relative;
+
+    width: 48px;
+    height: 27px;
+    padding: 0;
+
+    flex: 0 0 auto;
+
+    border: 0;
+    border-radius: 999px;
+
+    background: #a7b2bb;
+}
+
+.settings-switch.active {
+    background: var(--accent);
+}
+
+.settings-switch-handle {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+
+    width: 19px;
+    height: 19px;
+
+    border-radius: 50%;
+
+    background: white;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.24);
+
+    transition: transform 160ms ease;
+}
+
+.settings-switch.active .settings-switch-handle {
+    transform: translateX(21px);
+}
+
+.settings-footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    color: var(--muted-text);
+
+    font-size: 0.73rem;
+}
+
+.reset-settings-button {
+    display: flex;
+
+    height: 34px;
+    padding: 0 11px;
+
+    align-items: center;
+    gap: 7px;
+
+    border: 1px solid rgba(217, 74, 87, 0.17);
+    border-radius: 9px;
+
+    background: rgba(217, 74, 87, 0.05);
+    color: #b63744;
+
+    font-size: 0.73rem;
+    font-weight: 700;
+}
+
+.reset-settings-button:hover,
+.reset-settings-button:focus-visible {
+    background: rgba(217, 74, 87, 0.11);
+    outline: none;
+}
+
+.settings-app-icon {
+    background: rgba(91, 112, 130, 0.14);
 }
 
 /* =========================================================
@@ -1693,7 +2162,8 @@ button:not(:disabled) {
 @media (max-width: 850px) {
     #welcome-window,
     #notes-window,
-    #nature-window {
+    #nature-window,
+    #settings-window {
         left: 125px;
 
         width: calc(100vw - 145px);
@@ -1711,6 +2181,10 @@ button:not(:disabled) {
         top: 110px;
     }
 
+    #settings-window {
+        top: 130px;
+    }
+
     .nature-challenge-list {
         grid-template-columns: 1fr;
     }
@@ -1721,7 +2195,7 @@ button:not(:disabled) {
         top: 10px;
         left: 8px;
 
-        grid-template-columns: repeat(3, 82px);
+        grid-template-columns: repeat(4, 82px);
     }
 
     .start-menu {
@@ -1739,7 +2213,8 @@ button:not(:disabled) {
 
     #welcome-window,
     #notes-window,
-    #nature-window {
+    #nature-window,
+    #settings-window {
         top: 115px;
         left: 10px;
 
@@ -1855,6 +2330,24 @@ button:not(:disabled) {
     }
 
     .reset-nature-button {
+        align-self: flex-start;
+    }
+
+    .settings-heading {
+        grid-template-columns: 1fr;
+    }
+
+    .wallpaper-options,
+    .theme-options {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .reset-settings-button {
         align-self: flex-start;
     }
 }

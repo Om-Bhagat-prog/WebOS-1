@@ -6,7 +6,7 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 7 is complete.
+Commit 8 is complete.
 
 The project currently provides:
 
@@ -60,6 +60,13 @@ The project currently provides:
 - Automatic Nature progress saving
 - Nature progress restored after refresh
 - Reset-progress confirmation
+- Working Settings application
+- Three selectable wallpapers
+- Light and dark application themes
+- Desktop grid visibility toggle
+- Automatic appearance preference saving
+- Appearance preferences restored after refresh
+- Reset appearance confirmation
 
 Application windows can now be moved by dragging their title bars.
 
@@ -105,6 +112,20 @@ Users can:
 - Reset all challenge progress
 
 Nature progress is stored in browser local storage.
+
+### Settings
+
+The Settings application controls WebOS appearance preferences.
+
+Users can:
+
+- Select Forest, Sunset, or Ocean wallpaper
+- Switch between light and dark application themes
+- Show or hide desktop grid lines
+- Reset appearance preferences
+- Refresh the browser without losing their choices
+
+Settings are stored using browser local storage.
 
 ## Window behavior
 

@@ -78,8 +78,297 @@
                     Nature
                 </span>
             </button>
+
+            <button
+                class = "desktop-icon"
+                type = "button"
+                data-open-window = "settings-window"
+            >
+                <span
+                    class = "desktop-icon-image"
+                    aria-hidden = "true"
+                >
+                    ⚙️
+                </span>
+
+                <span class = "desktop-icon-label">
+                    Settings
+                </span>
+            </button>
         </section>
 
+        <!-- =====================================================
+             Settings application
+            ===================================================== -->
+
+            <section
+                id = "settings-window"
+                class = "app-window hidden"
+                data-window
+                data-app-title = "Settings"
+                data-app-icon = "⚙️"
+                data-minimized = "false"
+                data-maximized = "false"
+                aria-label = "Settings application"
+            >
+                <header
+                    class = "window-header"
+                    data-drag-handle
+                >
+                    <div class = "window-title">
+                        <span aria-hidden = "true">⚙️</span>
+                        <span>Settings</span>
+                    </div>
+
+                    <div
+                        class = "window-controls"
+                        aria-label = "Window controls"
+                    >
+                        <button
+                            class = "window-control"
+                            type = "button"
+                            data-minimize-window
+                            aria-label = "Minimize Settings"
+                            title = "Minimize Settings"
+                        >
+                            −
+                        </button>
+
+                        <button
+                            class = "window-control maximize-control"
+                            type = "button"
+                            data-maximize-window
+                            aria-label = "Maximize Settings"
+                            title = "Maximize Settings"
+                        >
+                            □
+                        </button>
+
+                        <button
+                            class = "window-control close-control"
+                            type = "button"
+                            data-close-window
+                            aria-label = "Close Settings"
+                            title = "Close Settings"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </header>
+
+                <div class = "window-content settings-window-content">
+                    <div class = "settings-heading">
+                        <div
+                            class = "settings-heading-icon"
+                            aria-hidden = "true"
+                        >
+                            ⚙️
+                        </div>
+
+                        <div>
+                            <p class = "eyebrow">
+                                PERSONALIZATION
+                            </p>
+
+                            <h2>
+                                WebOS Settings
+                            </h2>
+
+                            <p>
+                                Customize the desktop wallpaper, application
+                                appearance, and desktop grid.
+                            </p>
+                        </div>
+                </div>
+
+                <section
+                    class = "settings-section"
+                    aria-labelledby = "wallpaper-setting-heading"
+                >
+                    <div class = "settings-section-heading">
+                        <div>
+                            <strong id = "wallpaper-setting-heading">
+                                Desktop wallpaper
+                            </strong>
+
+                            <span>
+                                Select a background or your WebOS desktop.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div
+                        class = "wallpaper-options"
+                        role = "radiogroup"
+                        aria-label = "Desktop wallpaper"
+                    >
+                        <button
+                            class = "wallpaper-option selected"
+                            type = "button"
+                            data-wallpaper-option = "forest"
+                            role = "radio"
+                            aria-checked = "true"
+                        >
+                            <span
+                                class = "wallpaper-preview wallpaper-forest"
+                                aria-hidden = "true"
+                            ></span>
+
+                            <span>
+                                <strong>Forest</strong>
+                                <small>Green and blue</small>
+                            </span>
+                        </button>
+
+                        <button
+                            class = "wallpaper-option"
+                            type = "button"
+                            data-wallpaper-option = "sunset"
+                            role= "radio"
+                            aria-checked = "false"
+                        >
+                            <span
+                                class = "wallpaper-preview wallpaper-sunset"
+                                aria-hidden = "true"
+                            ></span>
+
+                            <span>
+                                <strong>Sunset</strong>
+                                <small>Orange and purple</small>
+                            </span>
+                        </button>
+
+                        <button
+                            class = "wallpaper-option"
+                            type = "button"
+                            data-wallpaper-option = "ocean"
+                            role = "radio"
+                            aria-checked="false"
+                        >
+                            <span
+                                class = "walpaper-preview wallpaper-ocean"
+                                aria-hidden = "true"
+                            ></span>
+
+                            <span>
+                                <strong>Ocean</strong>
+                                <small>Deep blue</small>
+                            </span>
+                        </button>
+                    </div>
+                </section>
+
+                <section
+                    class = "settings-section"
+                    aria-labelledby = "appearance-setting-heading"
+                >
+                    <div class = "settings-section-heading">
+                        <div>
+                            <strong id = "appearance-setting-heading">
+                                Window appearance
+                            </strong>
+
+                            <span>
+                                Choose a light or dark application theme.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div
+                        class = "theme-options"
+                        role = "radiogroup"
+                        aria-label = "Window appearance"
+                    >
+                        <button
+                            class = "theme-option selected"
+                            type = "button"
+                            data-theme-option = "light"
+                            role = "radio"
+                            aria-checked = "true"
+                        >
+                            <span
+                                class = "theme-preview theme-preview-light"
+                                aria-hidden = "true"
+                            >
+                                <span></span>
+                            </span>
+
+                            <span>
+                                <strong>Light</strong>
+                                <small>Bright application windows</small>
+                            </span>
+                        </button>
+
+                        <button
+                            class = "theme-option"
+                            type = "button"
+                            data-theme-option = "dark"
+                            role = "radio"
+                            aria-checked = "false"
+                        >
+                            <span
+                                class = 'theme-preview theme-preview-dark'
+                                aria-hidden = "true"
+                            >
+                                <span></span>
+                            </span>
+
+                            <span>
+                                <strong>Dark</strong>
+                                <small>Dark application windows</small>
+                            </span>
+                        </button>
+                    </div>
+                </section>
+
+                <section
+                    class = "settings-section settings-toggle-section"
+                    aria-labelledby = "grid-setting-heading"
+                >
+                    <div class = "settings-section-heading">
+                        <div>
+                            <strong id = "grid-setting-heading">
+                                Desktop grid
+                            </strong>
+
+                            <span>
+                                Display subtle alignment lines over the wallpaper.
+                            </span>
+                        </div>
+
+                        <button
+                            id = "desktop-grid-toggle"
+                            class = "settings-switch active"
+                            type = "button"
+                            role = "switch"
+                            aria-checked = "true"
+                            aria-label = "Show desktop grid"
+                        >
+                            <span class = "settings-switch-handle"></span>
+                        </button>
+                    </div>
+                </section>
+
+                <footer class = "settings-footer">
+                    <span
+                        id = "settings-save-message"
+                        role = "status"
+                        aria-live = "polite"
+                    >
+                        Appearance settings are saved automatically
+                    </span>
+
+                    <button
+                        id = "reset-settings-button"
+                        class = "reset-settings-button"
+                        type = "button"
+                    >
+                        <span aria-hidden = "true">↺</span>
+                        <span>Reset appearance</span>
+                    </button>
+                </footer>
+            </div>
+            </section>
         <!-- =====================================================
              Welcome application
              ===================================================== -->
@@ -803,7 +1092,7 @@
             <div class="start-menu-section">
                 <div class="start-menu-section-heading">
                     <span>Applications</span>
-                    <span id="start-app-count">3 apps</span>
+                    <span id="start-app-count">4 apps</span>
                 </div>
 
                 <div
@@ -816,6 +1105,25 @@
                         data-open-window="welcome-window"
                         data-search-name="welcome home system"
                     >
+
+                    <button
+                        class = "start-app"
+                        type = "button"
+                        data-open-window = "settings-window"
+                        data-search-name = "settings preferences appearance wallpaper theme"
+                    >
+                        <span
+                            class = "start-app-icon settings-app-icon"
+                            aria-hidden = "true"
+                        >
+                            ⚙️
+                        </span>
+
+                        <span class = "start-app-text">
+                            <strong>Settings</strong>
+                            <span>Appearance preferences</span>
+                        </span>
+                    </button>
                         <span
                             class="start-app-icon welcome-app-icon"
                             aria-hidden="true"

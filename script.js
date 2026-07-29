@@ -84,6 +84,30 @@ const resetNatureButton = document.getElementById(
     "reset-nature-button"
 );
 
+const wallpaperOptionButtons = Array.from(
+    document.querySelectorAll(
+        "[data-wallpaper-option]"
+    )
+);
+
+const themeOptionButtons = Array.from(
+    document.querySelectorAll(
+        "[data-theme-option]"
+    )
+);
+
+const desktopGridToggle = document.getElementById(
+    "desktop-grid-toggle"
+);
+
+const settingsSaveMessage = document.getElementById(
+    "settings-save-message"
+);
+
+const resetSettingsButton = document.getElementById(
+    "reset-settings-button"
+);
+
 const taskbarApplications = document.getElementById(
     "taskbar-applications"
 );
@@ -109,6 +133,19 @@ const NOTES_STORAGE_KEY = "greenspace-webos-note";
 
 const NATURE_STORAGE_KEY = 
     "greenspace-webos-nature-progress";
+
+const SETTINGS_STORAGE_KEY = 
+    "greenspace-webos-settings";
+
+const DEFAULT_WEBOS_SETTINGS = {
+    wallpaper: "forest",
+    theme: "light",
+    showGrid: true
+};
+
+let webOSSettings = {
+    ...DEFAULT_WEBOS_SETTINGS
+};
 
 let natureCompletedChallenges = new Set();
 
@@ -1419,6 +1456,307 @@ function registerNatureEvents() {
 }
 
 /* =========================================================
+   Settings application
+   ========================================================= */
+
+function isValidWallpaper(wallpaper) {
+    return [
+        "forest",
+        "sunset",
+        "ocean"
+    ].includes(wallpaper);
+}
+
+function isValidTheme(theme) {
+    return [
+        "light",
+        "dark"
+    ].includes(theme);
+}
+
+function updateWallpaperButtons() {
+    wallpaperOptionButtons.forEach((button) => {
+        const selected =
+            button.dataset.wallpaperOption ===
+            webOSSettings.wallpaper;
+
+        button.classList.toggle(
+            "selected",
+            selected
+        );
+
+        button.setAttribute(
+            "aria-checked",
+            String(selected)
+        );
+    });
+}
+
+function updateThemeButtons() {
+    themeOptionButtons.forEach((button) => {
+        const selected =
+            button.dataset.themeOption ===
+            webOSSettings.theme;
+
+        button.classList.toggle(
+            "selected",
+            selected
+        );
+
+        button.setAttribute(
+            "aria-checked",
+            String(selected)
+        );
+    });
+}
+
+function updateGridToggle() {
+    desktopGridToggle.classList.toggle(
+        "active",
+        webOSSettings.showGrid
+    );
+
+    desktopGridToggle.setAttribute(
+        "aria-checked",
+        String(webOSSettings.showGrid)
+    );
+}
+
+function applyWebOSSettings() {
+    desktop.dataset.wallpaper =
+        webOSSettings.wallpaper;
+
+    document.body.classList.toggle(
+        "dark-theme",
+        webOSSettings.theme === "dark"
+    );
+
+    desktop.classList.toggle(
+        "grid-hidden",
+        !webOSSettings.showGrid
+    );
+
+    updateWallpaperButtons();
+    updateThemeButtons();
+    updateGridToggle();
+}
+
+function saveWebOSSettings() {
+    try {
+        localStorage.setItem(
+            SETTINGS_STORAGE_KEY,
+            JSON.stringify(webOSSettings)
+        );
+
+        settingsSaveMessage.textContent =
+            "Appearance settings saved";
+    } catch (error) {
+        console.error(
+            "Unable to save WebOS settings.",
+            error
+        );
+
+        settingsSaveMessage.textContent =
+            "Appearance settings could not be saved";
+    }
+}
+
+function loadWebOSSettings() {
+    let storedSettingsJson;
+
+    try {
+        storedSettingsJson = localStorage.getItem(
+            SETTINGS_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to access WebOS settings.",
+            error
+        );
+
+        applyWebOSSettings();
+        return;
+    }
+
+    if (!storedSettingsJson) {
+        applyWebOSSettings();
+        return;
+    }
+
+    try {
+        const storedSettings =
+            JSON.parse(storedSettingsJson);
+
+        webOSSettings = {
+            wallpaper:
+                isValidWallpaper(
+                    storedSettings.wallpaper
+                )
+                    ? storedSettings.wallpaper
+                    : DEFAULT_WEBOS_SETTINGS.wallpaper,
+
+            theme:
+                isValidTheme(
+                    storedSettings.theme
+                )
+                    ? storedSettings.theme
+                    : DEFAULT_WEBOS_SETTINGS.theme,
+
+            showGrid:
+                typeof storedSettings.showGrid ===
+                "boolean"
+                    ? storedSettings.showGrid
+                    : DEFAULT_WEBOS_SETTINGS.showGrid
+        };
+    } catch (error) {
+        console.error(
+            "Unable to load WebOS settings.",
+            error
+        );
+
+        webOSSettings = {
+            ...DEFAULT_WEBOS_SETTINGS
+        };
+
+        try {
+            localStorage.removeItem(
+                SETTINGS_STORAGE_KEY
+            );
+        } catch (storageError) {
+            console.error(
+                "Unable to remove invalid settings.",
+                storageError
+            );
+        }
+    }
+
+    applyWebOSSettings();
+}
+
+function selectWallpaper(wallpaper) {
+    if (!isValidWallpaper(wallpaper)) {
+        return;
+    }
+
+    webOSSettings.wallpaper = wallpaper;
+
+    applyWebOSSettings();
+    saveWebOSSettings();
+}
+
+function selectTheme(theme) {
+    if (!isValidTheme(theme)) {
+        return;
+    }
+
+    webOSSettings.theme = theme;
+
+    applyWebOSSettings();
+    saveWebOSSettings();
+}
+
+function toggleDesktopGrid() {
+    webOSSettings.showGrid =
+        !webOSSettings.showGrid;
+
+    applyWebOSSettings();
+    saveWebOSSettings();
+}
+
+function resetWebOSSettings() {
+    const settingsAreAlreadyDefault =
+        webOSSettings.wallpaper ===
+            DEFAULT_WEBOS_SETTINGS.wallpaper &&
+        webOSSettings.theme ===
+            DEFAULT_WEBOS_SETTINGS.theme &&
+        webOSSettings.showGrid ===
+            DEFAULT_WEBOS_SETTINGS.showGrid;
+
+    if (settingsAreAlreadyDefault) {
+        settingsSaveMessage.textContent =
+            "Default appearance is already active";
+
+        return;
+    }
+
+    const userConfirmed = window.confirm(
+        "Reset all appearance settings?"
+    );
+
+    if (!userConfirmed) {
+        return;
+    }
+
+    webOSSettings = {
+        ...DEFAULT_WEBOS_SETTINGS
+    };
+
+    try {
+        localStorage.removeItem(
+            SETTINGS_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to reset WebOS settings.",
+            error
+        );
+    }
+
+    applyWebOSSettings();
+
+    settingsSaveMessage.textContent =
+        "Appearance settings reset";
+}
+
+function registerSettingsEvents() {
+    if (
+        wallpaperOptionButtons.length === 0 ||
+        themeOptionButtons.length === 0 ||
+        !desktopGridToggle ||
+        !settingsSaveMessage ||
+        !resetSettingsButton
+    ) {
+        console.error(
+            "Settings initialization failed. Check the Hour 8 Settings HTML."
+        );
+
+        return;
+    }
+
+    wallpaperOptionButtons.forEach((button) => {
+        button.addEventListener(
+            "click",
+            () => {
+                selectWallpaper(
+                    button.dataset.wallpaperOption
+                );
+            }
+        );
+    });
+
+    themeOptionButtons.forEach((button) => {
+        button.addEventListener(
+            "click",
+            () => {
+                selectTheme(
+                    button.dataset.themeOption
+                );
+            }
+        );
+    });
+
+    desktopGridToggle.addEventListener(
+        "click",
+        toggleDesktopGrid
+    );
+
+    resetSettingsButton.addEventListener(
+        "click",
+        resetWebOSSettings
+    );
+}
+
+/* =========================================================
    Event registration
    ========================================================= */
 
@@ -1636,7 +1974,9 @@ function initializeWebOS() {
     registerWindowEvents();
     registerNotesEvents();
     registerNatureEvents();
+    registerSettingsEvents();
 
+    loadWebOSSettings();
     loadSavedNote();
     loadNatureProgress();
     initializeOpenWindows();
