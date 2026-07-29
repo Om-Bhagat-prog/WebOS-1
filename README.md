@@ -6,7 +6,7 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 6 is complete.
+Commit 7 is complete.
 
 The project currently provides:
 
@@ -52,6 +52,14 @@ The project currently provides:
 - A system tray
 - A live clock and date
 - Responsive behavior for smaller screens
+- Interactive Nature challenge tracker
+- Six environmental activities
+- Completed-task states
+- Environmental points
+- Live prorgress bar
+- Automatic Nature progress saving
+- Nature progress restored after refresh
+- Reset-progress confirmation
 
 Application windows can now be moved by dragging their title bars.
 
@@ -85,7 +93,18 @@ Notes are stored using the browser Local Storage API.
 
 ### Nature
 
-The Nature application presents environmental ideas related to planting, conserving water, and reusing materials.
+The Nature application is an interactive environmental challenge tracker.
+
+Users can:
+
+- Complete six environmental activities
+- Earn green points
+- View completed-task progress
+- Mark tasks incomplete again
+- Refresh without losing progress
+- Reset all challenge progress
+
+Nature progress is stored in browser local storage.
 
 ## Window behavior
 
@@ -584,6 +603,47 @@ Another challenge was distinguishing between Ready, Unsaved, Saving and Saved st
 #### Next development commit
 
 Commit 7 will improve the Nature application with interactive environmental cards or create another original WebOS application.
+
+---
+
+### Devlog 7 - Interactive Nature challenge tracker
+
+#### Goal
+
+Convert the static Nature application into an interactive
+environmental activity tracker.
+
+#### Work completed
+
+- Added six environmental challenges
+- Added complete and incomplete states
+- Added a live progress bar
+- Added completed-task counting
+- Added environmental points
+- Added automatic browser saving
+- Restored saved progress after refresh
+- Added reset confirmation
+- Added responsive Nature layouts
+- Added accessible progress and button states
+
+#### Technical decisions
+
+Challenge identifiers and point values are stored in HTML data
+attributes.
+
+Javascript reads these values through each element's dataset.
+
+Completed challenge IDs are stored as a JSON array in local storage.
+A Javascript Set is used while the application is running because it
+provides simple add, delete, and membership operations.
+
+Event delegation is used on the challenge list. Instead of registering
+six serparate button listeners, one listener determines which challenge 
+button was clicked.
+
+#### Next Development commit
+
+Commit 8 will add a Settings application with wallpaper and interface preferences. 
 
 ## Planned features
 

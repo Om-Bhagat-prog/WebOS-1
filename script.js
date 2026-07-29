@@ -46,6 +46,44 @@ const notesCharacterCount = document.getElementById(
     "notes-character-count"
 );
 
+const natureChallengeList = document.getElementById(
+    "nature-challenge-list"
+);
+
+const natureChallengeCards = Array.from(
+    document.querySelectorAll(
+        "[data-nature-challenge]"
+    )
+);
+
+const natureProgressBar = document.getElementById(
+    "nature-progress-bar"
+);
+
+const natureProgressTrack = document.querySelector(
+    ".nature-progress-track"
+);
+
+const natureProgressCount = document.getElementById(
+    "nature-progress-count"
+);
+
+const natureProgressMessage = document.getElementById(
+    "nature-progress-message"
+);
+
+const naturePoints = document.getElementById(
+    "nature-points"
+);
+
+const natureSaveMessage = document.getElementById(
+    "nature-save-message"
+);
+
+const resetNatureButton = document.getElementById(
+    "reset-nature-button"
+);
+
 const taskbarApplications = document.getElementById(
     "taskbar-applications"
 );
@@ -68,6 +106,11 @@ let notesAutoSaveTimeoutId = null;
 const normalWindowStates = new Map();
 
 const NOTES_STORAGE_KEY = "greenspace-webos-note";
+
+const NATURE_STORAGE_KEY = 
+    "greenspace-webos-nature-progress";
+
+let natureCompletedChallenges = new Set();
 
 const TASKBAR_HEIGHT = 64;
 const MINIMUM_VISIBLE_WINDOW_WIDTH = 120;
@@ -1028,6 +1071,354 @@ function handleNotesKeyboardShortcut(event) {
 }
 
 /* =========================================================
+   Nature application
+   ========================================================= */
+
+   function getNatureChallengeId(challengeCard) {
+       return challengeCard.dataset.natureChallenge;
+   }
+
+   function getNatureChallengePoints(challengeCard) {
+    const points = Number(
+        challengeCard.dataset.points
+    );
+
+    return Number.isFinite(points)
+        ? points
+        : 0;
+   }
+
+function isNatureChallengeComplete(challengeCard) {
+    const challengeId = 
+        getNatureChallengeId(challengeCard);
+
+    return natureCompletedChallenges.has(challengeId);
+}
+
+function updateNatureChallengeCard(challengeCard) {
+    const complete = 
+        isNatureChallengeComplete(challengeCard);
+
+    const toggleButton = challengeCard.querySelector(
+        "[data-toggle-nature-challenge]"
+    );
+
+    const buttonIcon = toggleButton.querySelector(
+        ".nature-button-icon"
+    );
+
+    const buttonLabel = toggleButton.querySelector(
+        ".nature-button-label"
+    );
+
+    challengeCard.classList.toggle(
+        "completed",
+        complete
+    );
+
+    toggleButton.setAttribute(
+        "aria-pressed",
+        String(complete)
+    );
+
+    buttonIcon.textContent = complete
+        ? "✓"
+        : "○";
+
+    buttonLabel.textContent = complete
+        ? "Completed"
+        : "Mark done";
+}
+
+function calculateNaturePoints() {
+    return natureChallengeCards.reduce(
+        (totalPoints, challengeCard) => {
+            if (
+                !isNatureChallengeComplete(
+                    challengeCard
+                )
+            ) {
+                return totalPoints;
+            }
+
+            return (
+                totalPoints + 
+                getNatureChallengePoints(
+                    challengeCard
+                )
+            );
+        },
+        0
+    );
+}
+
+function getNatureProgressMessage(completedCount) {
+    const totalChallenges = 
+        natureChallengeCards.length;
+
+    if (completedCount === 0) {
+        return "Start your first activity";
+    }
+
+    if (completedCount === totalChallenges) {
+        return "All challenges completed!";
+    }
+
+    if (completedCount >= totalChallenges / 2) {
+        return "Great progress-keep going";
+    }
+
+    return "You are building a greener day";
+}
+
+function updateNatureProgress() {
+    const totalChallenges =
+        natureChallengeCards.length;
+
+    const completedCount =
+        natureCompletedChallenges.size;
+
+    const completionPercentage =
+        totalChallenges === 0
+            ? 0
+            : (
+                completedCount /
+                totalChallenges
+            ) * 100;
+
+    const totalPoints =
+        calculateNaturePoints();
+
+    natureChallengeCards.forEach(
+        updateNatureChallengeCard
+    );
+
+    natureProgressBar.style.width =
+        `${completionPercentage}%`;
+
+    natureProgressTrack.setAttribute(
+        "aria-valuemax",
+        String(totalChallenges)
+    );
+
+    natureProgressTrack.setAttribute(
+        "aria-valuenow",
+        String(completedCount)
+    );
+
+    natureProgressCount.textContent =
+        `${completedCount} of ${totalChallenges} complete`;
+
+    natureProgressMessage.textContent =
+        getNatureProgressMessage(
+            completedCount
+        );
+
+    naturePoints.textContent =
+        String(totalPoints);
+}
+
+function saveNatureProgress() {
+    const completedChallengeIds = Array.from(
+        natureCompletedChallenges
+    );
+
+    try {
+        localStorage.setItem(
+            NATURE_STORAGE_KEY,
+            JSON.stringify(
+                completedChallengeIds
+            )
+        );
+
+        natureSaveMessage.textContent = 
+            "Progress saved automatically";
+    } catch (error) {
+        console.error(
+            "Unable to save Nature progress.",
+            error
+        );
+
+        natureSaveMessage.textContent = 
+            "Progress could not be saved";
+    }
+}
+
+function loadNatureProgress() {
+    let savedProgressJson;
+
+    try {
+        savedProgressJson = localStorage.getItem(
+            NATURE_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to access Nature progress.",
+            error
+        );
+
+        updateNatureProgress();
+        return;
+    }
+
+    if (!savedProgressJson) {
+        updateNatureProgress();
+        return;
+    }
+
+    try {
+        const savedChallengeIds = 
+            JSON.parse(savedProgressJson);
+
+        const validChallengeIds = new Set(
+            natureChallengeCards.map(
+                getNatureChallengeId
+            )
+        );
+
+        natureCompletedChallenges = new Set(
+            Array.isArray(savedChallengeIds)
+            ? savedChallengeIds.filter(
+                (challengeId) =>
+                    validChallengeIds.has(
+                        challengeId
+                    )
+            )
+            : []
+        );
+    } catch (error) {
+        console.error(
+            "Unable to load Nature progress.",
+            error
+        );
+
+        natureCompletedChallenges = new Set();
+
+        try {
+            localStorage.removeItem(
+                NATURE_STORAGE_KEY
+            );
+        } catch (storageError) {
+            console.error(
+                "Unable to clear invalid Nature progress.",
+                storageError
+            );
+        }
+    }
+
+    updateNatureProgress();
+}
+
+function toggleNatureChallenge(challengeCard) {
+    const challengeId = 
+        getNatureChallengeId(challengeCard);
+
+    if (!challengeId) {
+        return;
+    }
+
+    if (
+        natureCompletedChallenges.has(
+            challengeId
+        )
+    ) {
+        natureCompletedChallenges.delete(
+            challengeId
+        );
+    } else {
+        natureCompletedChallenges.add(
+            challengeId
+        );
+    }
+
+    updateNatureProgress();
+    saveNatureProgress();
+}
+
+function resetNatureProgress() {
+    if (natureCompletedChallenges.size === 0) {
+        return;
+    }
+
+    const userConfirmed = window.confirm(
+        "Reset all Nature challenge progress?"
+    );
+
+    if (!userConfirmed) {
+        return;
+    }
+
+    natureCompletedChallenges.clear();
+
+    try {
+        localStorage.removeItem(
+            NATURE_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to reset Nature progres.",
+            error
+        );
+    }
+
+    updateNatureProgress();
+
+    natureSaveMessage.textContent = 
+        "Progress reset";
+}
+
+function registerNatureEvents() {
+    if (
+        !natureChallengeList ||
+        !natureProgressBar ||
+        !natureProgressTrack ||
+        !natureProgressCount ||
+        !natureProgressMessage ||
+        !naturePoints ||
+        !natureSaveMessage ||
+        !resetNatureButton
+    ) {
+        console.error(
+            "Nature initialization failed. Check the Commit 7 Nature HTML IDs."
+        );
+
+        return;
+    }
+
+    natureChallengeList.addEventListener(
+        "click",
+        (event) => {
+            const toggleButton = 
+                event.target.closest(
+                    "[data-toggle-nature-challenge]"
+                );
+
+            if (!toggleButton) {
+                return;
+            }
+
+            const challengeCard = 
+                toggleButton.closest(
+                    "[data-nature-challenge]"
+                );
+
+            if (!challengeCard) {
+                return;
+            }
+
+            toggleNatureChallenge(
+                challengeCard
+            );
+        }
+    );
+
+    resetNatureButton.addEventListener(
+        "click",
+        resetNatureProgress
+    );
+}
+
+/* =========================================================
    Event registration
    ========================================================= */
 
@@ -1233,24 +1624,26 @@ function initializeOpenWindows() {
 }
 
 function initializeWebOS() {
-    registerApplicationLaunchEvents();
-    registerStartMenuEvents();
-    registerWindowEvents();
-    registerNotesEvents();
-
-    loadSavedNote();
-    initializeOpenWindows();
-
-    window.addEventListener(
-        "resize",
-        keepAllWindowsInsideDesktop
-    );
-
     updateClock();
 
     window.setInterval(
         updateClock,
         1000
+    );
+
+    registerApplicationLaunchEvents();
+    registerStartMenuEvents();
+    registerWindowEvents();
+    registerNotesEvents();
+    registerNatureEvents();
+
+    loadSavedNote();
+    loadNatureProgress();
+    initializeOpenWindows();
+
+    window.addEventListener(
+        "resize",
+        keepAllWindowsInsideDesktop
     );
 }
 

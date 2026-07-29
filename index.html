@@ -355,138 +355,401 @@
              Nature application
              ===================================================== -->
 
-        <section
-            id="nature-window"
-            class="app-window hidden"
-            data-window
-            data-app-title="Nature"
-            data-app-icon="🌿"
-            data-minimized="false"
-            data-maximized="false"
-            aria-label="Nature application"
-        >
-            <header
-                class="window-header"
-                data-drag-handle
+            <section
+                id = "nature-window"
+                class = "app-window hidden"
+                data-window
+                data-app-title = "Nature"
+                data-app-icon = "🌿"
+                data-minimized = "false"
+                data-maximized = "false"
+                aria-label = "Nature application"
             >
-                <div class="window-title">
-                    <span aria-hidden="true">🌿</span>
-                    <span>Nature</span>
-                </div>
-
-                <div
-                    class="window-controls"
-                    aria-label="Window controls"
+                <header
+                    class = "window-header"
+                    data-drag-handle
                 >
-                    <button
-                        class="window-control"
-                        type="button"
-                        data-minimize-window
-                        aria-label="Minimize Nature"
-                        title="Minimize Nature"
-                    >
-                        −
-                    </button>
+                    <div class = "window-title">
+                        <span aria-hidden = "true">🌿</span>
+                        <span>Nature</span>
+                    </div>
 
-                    <button
-                        class="window-control maximize-control"
-                        type="button"
-                        data-maximize-window
-                        aria-label="Maximize Nature"
-                        title="Maximize Nature"
-                    >
-                        □
-                    </button>
-
-                    <button
-                        class="window-control close-control"
-                        type="button"
-                        data-close-window
-                        aria-label="Close Nature"
-                        title="Close Nature"
-                    >
-                        ×
-                    </button>
-                </div>
-            </header>
-
-            <div class="window-content">
-                <div class="application-heading">
                     <div
-                        class="application-heading-icon nature-heading-icon"
-                        aria-hidden="true"
+                        class = "window-controls"
+                        aria-label = "Window controls"
                     >
-                        🌳
+                        <button
+                            class = "window-control"
+                            type = "button"
+                            data-minimize-window
+                            aria-label = "Minimize Nature"
+                            title = "Minimize Nature"
+                        >
+                            −
+                        </button>
+
+                        <button
+                            class = "window-control maximize-control"
+                            type = "button"
+                            data-maximize-window
+                            aria-label = "Maximize Nature"
+                            title = "Maximize Nature"
+                        >
+                            □
+                        </button>
+
+
+
+                        <button
+                            class = "window-control close-control"
+                            type = "button"
+                            data-close-window
+                            aria-label = "Close Nature"
+                            title = "Close Nature"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </header>
+
+                <div class = "window-content nature-window-content">
+                    <div class = "nature-app-heading">
+                        <div>
+                            <p class = "eyebrow">
+                                GREENSPACE CHALLENGE
+                            </p>
+
+                            <h2>
+                                Small actions matter
+                            </h2>
+
+                            <p>
+                                Complete environmental activities and track your
+                                GreenSpace progress.
+                            </p>
+                        </div>
+
+                        <div
+                            class = "nature-points-card"
+                            aria-label = "Environmental points"
+                        >
+                            <span aria-hidden = "true">🌱</span>
+
+                            <div>
+                                <strong id = "nature-points">0</strong>
+                                <span>green points</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                        <p class="eyebrow">
-                            GREENSPACE COLLECTION
-                        </p>
+                    <section
+                        class = "nature-progress-panel"
+                        aria-labelledby = "nature-progress-title"
+                    >
+                        <div class = "nature-progress-heading">
+                            <div>
+                                    <strong id = "nature-progress-title">
+                                        Today's progress
+                                    </strong>
 
-                        <h2>
-                            Small actions matter
-                        </h2>
+                                    <span id = "nature-progress-message">
+                                        Start your first activity
+                                    </span>
+                            </div>
 
-                        <p>
-                            Nature is the visual identity of this WebOS.
-                            This application highlights practical ways to
-                            protect the environment.
-                        </p>
+                            <span id = "nature-progress-count">
+                                0 of 6 complete
+                            </span>
+                        </div>
+
+                        <div
+                            class = "nature-progress-track"
+                            role = "progressbar"
+                            aria-label = "Nature challenge progress"
+                            aria-valuemin = "0"
+                            aria-valuemax = "6"
+                            aria-valuenow = "0"
+                        >
+                            <div 
+                                id = "nature-progress-bar"
+                                class = "nature-progress-bar"
+                            ></div>
+                        </div>
+                    </section>
+
+                    <div
+                        id = "nature-challenge-list"
+                        class = "nature-challenge-list"
+                    >
+                        <article
+                            class = "nature-challenge"
+                            data-nature-challenge = "plant"
+                            data-points = "20"
+                        >
+                            <div
+                                class = "nature-challenge-icon"
+                                aria-hidden = "true"
+                            >
+                                🌱
+                            </div>
+
+                            <div class = "nature-challenge-content">
+                                <strong>Care for a plant</strong>
+
+                                <p>
+                                    Water a plant or check whether its soil
+                                    needs attention.
+                                </p>
+
+                                <span>+20 points</span>
+                            </div>
+
+                            <button
+                                class = "nature-complete-button"
+                                type = "button"
+                                data-toggle-nature-challenge
+                                aria-pressed = "false"
+                            >
+                                <span
+                                    class = "nature-button-icon"
+                                    aria-hidden = "true"
+                                >
+                                    ○
+                                </span>
+
+                                <span class = "nature-button-label">
+                                    Mark done
+                                </span>
+                            </button>
+                        </article>
+
+                            <article 
+                                class = "nature-challenge"
+                                data-nature-challenge = "water"
+                                data-points = "15"
+                            >
+                                <div
+                                    class = "nature-challenge-icon"
+                                    aria-hidden = "true"
+                                >
+                                    💧
+                                </div>
+
+                                <div class = "nature-challenge-content">
+                                    <strong>Save Water</strong>
+
+                                    <p>
+                                        Turn off the tap while brushing or shorten
+                                        a shower.
+                                    </p>
+
+                                    <span>+15 points</span>
+                                </div>
+
+                                <button
+                                    class = "nature-complete-button"
+                                    type = "button"
+                                    data-toggle-nature-challenge
+                                    aria-pressed = "false"
+                                >
+                                    <span
+                                        class = "nature-button-icon"
+                                        aria-hidden = "true"
+                                    >
+                                        ○
+                                    </span>
+
+                                    <span class = "nature-button-label">
+                                        Mark done
+                                    </span>
+                                </button>
+                            </article>
+
+                            <article
+                                class = "nature-challenge"
+                                data-nature-challenge = "reuse"
+                                data-points = "15"
+                            >
+                            <div
+                                class = "nature-challenge-icon"
+                                aria-hidden = "true"
+                            >
+                                ♻️
+                            </div>
+
+                            <div class = "nature-challenge-content">
+                                <strong>Reuse an item</strong>
+
+                                <p>
+                                    Reuse a bag, container, bottle, or another
+                                    household item.
+                                </p>
+
+                                <span>+15 points</span>
+                            </div>
+
+                            <button
+                                class = "nature-complete-button"
+                                type = "button"
+                                data-toggle-nature-challenge
+                                aria-pressed = "false"
+                            >
+                                <span
+                                    class = "nature-button-icon"
+                                    aria-hidden = "true"
+                                >
+                                    ○
+                                </span>
+
+                                <span class = "nature-button-label">
+                                    Mark done
+                                </span>
+                            </button>
+                        </article>
+
+                        <article
+                            class = "nature-challenge"
+                            data-nature-challenge = "energy"
+                            data-points = "20"
+                        >
+                            <div
+                                class = "nature-challenge-icon"
+                                aria-hidden = "true"
+                            >
+                                💡
+                            </div>
+
+                            <div class = "nature-challenge-content">
+                                <strong>Reduce energy use</strong>
+
+                                <p>
+                                    Switch off a light or unplug an unused
+                                    electronic device.
+                                </p>
+
+                                <span>+20 points</span>
+                            </div>
+
+                            <button
+                                class = "nature-complete-button"
+                                type = "button"
+                                data-toggle-nature-challenge
+                                aria-pressed = "false"
+                            >
+                                <span
+                                    class = "nature-button-icon"
+                                    aria-hidden = "true"
+                                >
+                                    ○
+                                </span>
+
+                                <span class = "nature-button-label">
+                                    Mark done
+                                </span>
+                            </button>
+                        </article>
+
+                        <article
+                            class = "nature-challenge"
+                            data-nature-challenge = "walk"
+                            data-points = "25"
+                        >
+                            <div
+                                class = "nature-challenge-icon"
+                                aria-hidden = "true"
+                            >
+                                🚶
+                            </div>
+
+                            <div class = "nature-challenge-content">
+                                <strong>Choose active travel</strong>
+
+                                <p>
+                                    Walk, cycle, or combine errands into one
+                                    efficient trip.
+                                </p>
+                                
+                                <span>+25 points</span>
+                            </div>
+
+                            <button
+                                class = "nature-complete-button"
+                                type = "button"
+                                data-toggle-nature-challenge
+                                aria-pressed = "false"
+                            >
+                                <span
+                                    class = "nature-button-icon"
+                                    aria-hidden = "true"
+                                >
+                                    ○
+                                </span>
+
+                                <span class = "nature-button-label">
+                                    Mark done
+                                </span>
+                            </button>
+                        </article>
+
+                        <article
+                            class = "nature-chllenge"
+                            data-nature-challenge = "cleanup"
+                            data-points = "25"
+                        >
+                            <div
+                                class = "nature-challenge-icon"
+                                aria-hidden = "true"
+                            >
+                                🧹
+                            </div>
+
+                            <div class = "nature-challenge-content">
+                                <strong>Clean a shared space</strong>
+                                
+                                <p>
+                                    Pick up litter or organize items for reuse
+                                    and recycling.
+                                </p>
+
+                                <span>+25 points</span>
+                            </div>
+
+                            <button
+                                class = "nature-complete-button"
+                                type = "button"
+                                data-toggle-nature-challenge
+                                aria-pressed = "false"
+                            >
+                                <span
+                                    class = "nature-button-icon"
+                                    aria-hidden = "true"
+                                >
+                                    ○
+                                </span>
+
+                                <span class = "nature-button-label">
+                                    Mark done
+                                </span>
+                            </button>
+                        </article>
                     </div>
+
+                    <footer class = "nature-footer">
+                        <span id = "nature-save-message">
+                            Progress is saved automatically
+                        </span>
+
+                        <button
+                            id = "reset-nature-button"
+                            class = "reset-nature-button"
+                            type = "button"
+                        >
+                            <span aria-hidden = "true">↺</span>
+                            <span>Reset progress</span>
+                        </button>
+                    </footer>
                 </div>
-
-                <div class="nature-grid">
-                    <article class="nature-card">
-                        <div
-                            class="nature-card-icon"
-                            aria-hidden="true"
-                        >
-                            🌱
-                        </div>
-
-                        <h3>Plant</h3>
-
-                        <p>
-                            Native plants support local insects, birds,
-                            soil, and water systems.
-                        </p>
-                    </article>
-
-                    <article class="nature-card">
-                        <div
-                            class="nature-card-icon"
-                            aria-hidden="true"
-                        >
-                            💧
-                        </div>
-
-                        <h3>Conserve</h3>
-
-                        <p>
-                            Reducing wasted water protects ecosystems and
-                            lowers the energy used for treatment.
-                        </p>
-                    </article>
-
-                    <article class="nature-card">
-                        <div
-                            class="nature-card-icon"
-                            aria-hidden="true"
-                        >
-                            ♻️
-                        </div>
-
-                        <h3>Reuse</h3>
-
-                        <p>
-                            Reusing an item usually avoids more waste than
-                            disposing of it and buying a replacement.
-                        </p>
-                    </article>
-                </div>
-            </div>
-        </section>
+            </section>
 
         <!-- =====================================================
              Start menu

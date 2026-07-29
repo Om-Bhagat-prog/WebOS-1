@@ -820,52 +820,326 @@ button:not(:disabled) {
    Nature application
    ========================================================= */
 
-.nature-grid {
-    display: grid;
+.nature-window-content {
+    display: flex;
 
-    grid-template-columns: repeat(3, minmax(145px, 1fr));
-    gap: 14px;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.nature-card {
-    padding: 17px;
+.nature-app-heading {
+    display: flex;
 
-    border: 1px solid rgba(39, 135, 95, 0.15);
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 22px;
+}
+
+.nature-app-heading h2 {
+    margin-bottom: 7px;
+}
+
+.nature-app-heading p:last-child {
+    margin-bottom: 0;
+}
+
+.nature-points-card {
+    display: flex;
+
+    min-width: 142px;
+    padding: 11px 14px;
+
+    align-items: center;
+    gap: 10px;
+
+    border: 1px solid rgba(39, 135, 95, 0.17);
     border-radius: 14px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(233, 247, 239, 0.9),
-            rgba(238, 246, 249, 0.76)
+            rgba(224, 245, 233, 0.92),
+            rgba(237, 247, 242, 0.9)   
+        );
+
+        box-shadow: 0 8px 20px rgba(39, 135, 95, 0.09);
+}
+
+.nature-points-card > span {
+    font-size: 1.75rem;
+}
+
+.nature-points-card div {
+    display: flex;
+
+    flex-direction: column;
+    gap: 1px;
+}
+
+.nature-points-card strong {
+    color: var(--accent-dark);
+
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.nature-points-card div span {
+    color: var(--muted-text);
+
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+
+.nature-progress-panel {
+    padding: 15px;
+
+    border: 1px solid rgba(39, 135, 95, 0.14);
+    border-radius: 14px;
+
+    background: rgba(39, 135, 95, 0.055);
+}
+
+.nature-progress-heading {
+    display: flex;
+
+    margin-bottom: 11px;
+
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.nature-progress-heading > div {
+    display: flex;
+
+    flex-direction: column;
+    gap: 3px;
+}
+
+.nature-progress-heading strong {
+    font-size: 0.88rem;
+}
+
+.nature-progress-heading span {
+    color: var(--muted-text);
+
+    font-size: 0.76rem;
+}
+
+#nature-progress-count {
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.nature-progress-track {
+    width: 100%;
+    height: 10px;
+
+    overflow: hidden;
+
+    border-radius: 999px;
+
+    background: rgba(39, 82, 68, 0.12);
+}
+
+.nature-progress-bar {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #2b9b68,
+            #5abb81
+        );
+
+    transition: width 260ms ease;
+}
+
+.nature-challenge-list {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.nature-challenge {
+    display: grid;
+
+    grid-template-columns:
+        50px minmax(0, 1fr) auto;
+
+    padding: 13px;
+
+    align-items: center;
+    gap: 11px;
+
+    border: 1px solid rgba(66, 82, 107, 0.13);
+    border-radius: 14px;
+
+    background: rgba(247, 250, 252, 0.83);
+
+    transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        transform 160ms ease,
+        opacity 160ms ease;
+}
+
+.nature-challenge:hover {
+    border-color: rgba(39, 135, 95, 0.24);
+
+    transform: translateY(-1px);
+}
+
+.nature-challenge.completed {
+    border-color: rgba(39, 135, 95, 0.25);
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(226, 245, 234, 0.94),
+            rgba(240, 248, 244, 0.92)
         );
 }
 
-.nature-card-icon {
+.nature-challenge.completed
+.nature-challenge-content strong {
+    color: var(--accent-dark);
+}
+
+.nature-challenge.completed
+.nature-challenge-content p {
+    opacity: 0.75;
+}
+
+.nature-challenge-icon {
     display: grid;
 
-    width: 52px;
-    height: 52px;
-
-    margin-bottom: 13px;
+    width: 48px;
+    height: 48px;
 
     place-items: center;
 
-    border-radius: 15px;
+    border-radius: 14px;
 
-    background: rgba(39, 135, 95, 0.1);
+    background: rgba(39, 135, 95, 0.09);
 
-    font-size: 2rem;
+    font-size: 1.7rem;
 }
 
-.nature-card h3 {
-    margin-bottom: 7px;
+.nature-challenge.completed
+.nature-challenge-icon {
+    background: rgba(39, 135, 95, 0.15);
 }
 
-.nature-card p {
-    margin: 0;
+.nature-challenge-content {
+    min-width: 0;
+}
+
+.nature-challenge-content strong {
+    display: block;
+
+    margin-bottom: 4px;
 
     font-size: 0.86rem;
+}
+
+.nature-challenge-content p {
+    margin: 0 0 5px;
+
+    font-size: 0.76rem;
+    line-height: 1.4;
+}
+
+.nature-challenge-content > span {
+    color: var(--accent);
+
+    font-size: 0..7rem;
+    font-weight: 750;
+}
+
+.nature-complete-button {
+    display: flex;
+
+    min-width: 94px;
+    height: 35px;
+    padding: 0 10px;
+
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    border: 1px solid rgba(39, 135, 95, 0.22);
+    border-radius: 9px;
+
+    background: rgba(39, 135, 95, 0.07);
+    color: var(--accent-dark);
+
+    font-size: 0.72rem;
+    font-weight: 750;
+}
+
+.nature-complete-button:hover,
+.nature-complete-button:focus-visible {
+    border-color: var(--accent);
+
+    background: rgba(39, 135, 95, 0.13);
+
+    outline: none;
+}
+
+.nature-challenge.completed
+.nature-complete-button {
+    border-color: var(--accent);
+
+    background: var(--accent);
+    color: white;
+}
+
+.nature-button-icon {
+    font-size: 1rem;
+}
+
+.nature-footer {
+    display: flex;
+    
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    color: var(--muted-text);
+
+    font-size: 0.74rem;
+}
+
+.reset-nature-button {
+    display: flex;
+
+    height: 34px;
+    padding: 0 10px;
+
+    align-items: center;
+    gap: 7px;
+
+    border: 1px solid rgba(217, 74, 87, 0.16);
+    border-radius: 9px;
+
+    background: rgba(217, 74, 87, 0.05);
+    color: #b63744;
+
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.reset-nature-button:hover,
+.reset-nature-button:focus-visible {
+    background: rgba(217, 74, 87, 0.11);
+    outline: none;
 }
 
 /* =========================================================
@@ -1437,7 +1711,7 @@ button:not(:disabled) {
         top: 110px;
     }
 
-    .nature-grid {
+    .nature-challenge-list {
         grid-template-columns: 1fr;
     }
 }
@@ -1552,5 +1826,35 @@ button:not(:disabled) {
 
     .notes-shortcut {
         display: none;
+    }
+
+    .nature-app-heading,
+    .nature-progress-heading,
+    .nature-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .nature-points-card {
+        align-self: flex-start;
+    }
+
+    .nature-progress-heading {
+        gap: 6px;
+    }
+
+    .nature-challenge {
+        grid-template-columns:
+            46px minmax(0, 1fr);
+    }
+
+    .nature-complete-button {
+        width: 100%;
+
+        grid-column: 1 / -1;
+    }
+
+    .reset-nature-button {
+        align-self: flex-start;
     }
 }
