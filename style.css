@@ -190,6 +190,18 @@ button:not(:disabled) {
     z-index: 1;
 
     display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(72px, 94px)
+        );
+
+    width: min(
+        390px,
+        calc(100vw - 36px)
+    );
+
     gap: 16px;
 }
 
@@ -1625,6 +1637,12 @@ body.dark-theme .calculator-history-item {
     font-size: 0.73rem;
 }
 
+.settings-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
 .reset-settings-button {
     display: flex;
 
@@ -2741,5 +2759,17 @@ body.dark-theme .calculator-history-item {
     .calculator-footer {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .settings-footer-actions {
+        width: 100%;
+
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .settings-footer-actions .reset-settings-button {
+        width: 100%;
+        justify-content: center;
     }
 }

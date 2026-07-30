@@ -108,6 +108,10 @@ const resetSettingsButton = document.getElementById(
     "reset-settings-button"
 );
 
+const resetDesktopButton = document.getElementById(
+    "reset-desktop-button"
+);
+
 const taskbarApplications = document.getElementById(
     "taskbar-applications"
 );
@@ -151,6 +155,8 @@ const clearCalculatorHistoryButton =
 
 let highestWindowZIndex = 20;
 let notesAutoSaveTimeoutId = null;
+let desktopStateSaveTimeoutId = null;
+let suppressDesktopStateSave = false;
 
 const normalWindowStates = new Map();
 
@@ -164,6 +170,9 @@ const SETTINGS_STORAGE_KEY =
 
 const CALCULATOR_HISTORY_STORAGE_KEY = 
     "greenspace-webos-calculator-history";
+
+const DESKTOP_STATE_STORAGE_KEY = 
+    "greenspace-webos-desktop-state";
 
 const MAX_CALCULATOR_HISTORY_ITEMS = 10;
 
@@ -311,6 +320,7 @@ function focusWindow(windowElement) {
     );
 
     updateTaskbarState();
+    scheduleDesktopStateSave();
 }
 
 function focusHighestVisibleWindow() {
@@ -369,6 +379,7 @@ function openWindow(windowId) {
     if (isWindowMinimized(windowElement)) {
         restoreMinimizedWindow(windowElement);
         closeStartMenu();
+        scheduleDesktopStateSave();
         return;
     }
 
@@ -377,6 +388,7 @@ function openWindow(windowId) {
 
     focusWindow(windowElement);
     closeStartMenu();
+    scheduleDesktopStateSave();
 }
 
 function closeWindow(windowElement) {
@@ -401,6 +413,7 @@ function closeWindow(windowElement) {
     removeTaskbarButton(windowElement.id);
 
     focusHighestVisibleWindow();
+    scheduleDesktopStateSave();
 }
 
 /* =========================================================
@@ -423,6 +436,7 @@ function minimizeWindow(windowElement) {
 
     updateTaskbarState();
     focusHighestVisibleWindow();
+    scheduleDesktopStateSave();
 }
 
 function restoreMinimizedWindow(windowElement) {
@@ -434,6 +448,7 @@ function restoreMinimizedWindow(windowElement) {
     windowElement.classList.remove("hidden");
 
     focusWindow(windowElement);
+    scheduleDesktopStateSave();
 }
 
 /* =========================================================
@@ -509,6 +524,7 @@ function maximizeWindow(windowElement) {
 
     updateMaximizeButton(windowElement, true);
     focusWindow(windowElement);
+    scheduleDesktopStateSave();
 }
 
 function restoreMaximizedWindow(windowElement) {
@@ -543,6 +559,7 @@ function restoreMaximizedWindow(windowElement) {
 
     updateMaximizeButton(windowElement, false);
     focusWindow(windowElement);
+    scheduleDesktopStateSave();
 }
 
 function toggleMaximizeWindow(windowElement) {
@@ -646,22 +663,24 @@ function makeWindowDraggable(windowElement) {
     }
 
     function stopDragging(event) {
-        if (!dragging) {
-            return;
-        }
-
-        dragging = false;
-
-        windowElement.classList.remove("dragging");
-
-        if (
-            dragHandle.hasPointerCapture(event.pointerId)
-        ) {
-            dragHandle.releasePointerCapture(
-                event.pointerId
-            );
-        }
+    if (!dragging) {
+        return;
     }
+
+    dragging = false;
+
+    windowElement.classList.remove("dragging");
+
+    if (
+        dragHandle.hasPointerCapture(event.pointerId)
+    ) {
+        dragHandle.releasePointerCapture(
+            event.pointerId
+        );
+    }
+
+    scheduleDesktopStateSave();
+}
 
     dragHandle.addEventListener(
         "pointerdown",
@@ -714,9 +733,11 @@ function keepWindowInsideDesktop(windowElement) {
 }
 
 function keepAllWindowsInsideDesktop() {
-    applicationWindows.forEach(
+        applicationWindows.forEach(
         keepWindowInsideDesktop
     );
+
+    scheduleDesktopStateSave();
 }
 
 /* =========================================================
@@ -1790,8 +1811,14 @@ function registerSettingsEvents() {
         "click",
         resetWebOSSettings
     );
-}
 
+    if (resetDesktopButton) {
+        resetDesktopButton.addEventListener(
+            "click",
+            resetDesktopState
+        );
+    }
+}
 /* =========================================================
    Calculator application
    ========================================================= */
@@ -2532,6 +2559,529 @@ function registerCalculatorEvents() {
 }
 
 /* =========================================================
+   Desktop-state persistence
+   ========================================================= */
+
+/**
+ * Returns a window's current saved state.
+ * 
+ * @param{HTMLElement} windowElement
+ * @returns {object}
+ */
+
+function getWindowDesktopState(windowElement) {
+    const computedStyle = window.getComputedStyle(
+        windowElement
+    );
+
+    const maximized =
+        isWindowMaximized(windowElement);
+
+    const normalState =
+        normalWindowStates.get(windowElement.id);
+
+    return {
+        id: windowElement.id,
+
+        open: isWindowOpen(windowElement),
+
+        minimized: isWindowMinimized(
+            windowElement
+        ),
+
+        maximized,
+
+        active: windowElement.classList.contains(
+            "active-window"
+        ),
+
+        left:
+            maximized && normalState
+                ? normalState.left
+                : parsePixelValue(
+                    computedStyle.left
+                ),
+
+        top:
+            maximized && normalState
+                ? normalState.top
+                : parsePixelValue(
+                    computedStyle.top
+                ),
+
+        width:
+            maximized && normalState
+                ? normalState.width
+                : windowElement.offsetWidth,
+
+        height:
+            maximized && normalState
+                ? normalState.height
+                : windowElement.offsetHeight,
+
+        zIndex: Number(
+            windowElement.style.zIndex || 0
+        )
+    };
+}
+
+/**
+ * Builds the complete desktop layout object.
+ * 
+ * @returns {{windows: object[], savedAt: string}}
+ */
+
+function getCurrentDesktopState() {
+    return {
+        windows: applicationWindows.map(
+            getWindowDesktopState
+        ),
+
+        savedAt: new Date().toISOString()
+    };
+}
+
+/**
+ * Saves the desktop layout immediatley.
+ */
+
+function saveDesktopState() {
+    if (suppressDesktopStateSave) {
+        return;
+    }
+
+    const desktopState =
+        getCurrentDesktopState();
+
+    try {
+        localStorage.setItem(
+            DESKTOP_STATE_STORAGE_KEY,
+            JSON.stringify(desktopState)
+        );
+    } catch (error) {
+        console.error(
+            "Unable to save desktop state.",
+            error
+        );
+    }
+}
+
+/**
+ * Delays saving while the user is moving or changing windows.
+ */
+
+function scheduleDesktopStateSave() {
+    if (desktopStateSaveTimeoutId !== null) {
+        window.clearTimeout(
+            desktopStateSaveTimeoutId
+        );
+    }
+
+    desktopStateSaveTimeoutId = 
+        window.setTimeout(
+            () => {
+                saveDesktopState();
+
+                desktopStateSaveTimeoutId = null;
+            },
+            250
+        );
+}
+
+/**
+ * Returns true when a saved number can be used safely.
+ * 
+ * @param{*} value
+ * @returns {boolean}
+ */
+
+function isValidSavedNumber(value) {
+    return (
+        typeof value === "number" &&
+        Number.isFinite(value)
+    );
+}
+
+/**
+ * Applies saved position and size vues to one window.
+ * 
+ * @param {HTMLElement} windowElement
+ * @param {object} savedWindowState
+ */
+
+function applySavedWindowGeometry(
+    windowElement,
+    savedWindowState
+) {
+    if (
+        isValidSavedNumber(
+            savedWindowState.left
+        )
+    ) {
+        windowElement.style.left = 
+            `${savedWindowState.left}px`;
+    }
+
+    if (
+        isValidSavedNumber(
+            savedWindowState.top
+        )
+    ) {
+        windowElement.style.top =
+            `${savedWindowState.top}px`;
+    }
+
+    if (
+        isValidSavedNumber(
+            savedWindowState.width
+        ) &&
+        savedWindowState.width >= 300
+    ) {
+        windowElement.style.width = 
+            `${savedWindowState.width}px`;
+    }
+
+    if (
+        isValidSavedNumber(
+            savedWindowState.height
+        ) &&
+        savedWindowState.height >= 260
+    ) {
+        windowElement.style.height = 
+            `${savedWindowState.height}px`;
+    }
+
+    if (
+        isValidSavedNumber(
+            savedWindowState.zIndex
+        )
+    ) {
+        windowElement.style.zIndex = 
+            String(savedWindowState.zIndex);
+
+        highestWindowZIndex = Math.max(
+            highestWindowZIndex,
+            savedWindowState.zIndex
+        );
+    }
+}
+
+/**
+ * Applies saved open, minimized, maximized, and active states.
+ * 
+ * @param {HTMLElement} widowElement
+ * @param {object} savedWindowState
+ */
+
+function applySavedWindowVisibility(
+    windowElement,
+    savedWindowState
+) {
+    windowElement.classList.remove(
+        "active-window",
+        "dragging",
+        "maximized"
+    );
+
+    windowElement.dataset.minimized = "false";
+    windowElement.dataset.maximized = "false";
+
+    const shouldBeOpen =
+        savedWindowState.open === true;
+
+    const shouldBeMinimized =
+        savedWindowState.minimized === true;
+
+    const shouldBeMaximized =
+        savedWindowState.maximized === true;
+
+    if (!shouldBeOpen) {
+        windowElement.classList.add("hidden");
+
+        updateMaximizeButton(
+            windowElement,
+            false
+        );
+
+        return;
+    }
+
+    if (shouldBeMinimized) {
+        windowElement.classList.add("hidden");
+        windowElement.dataset.minimized = "true";
+
+        updateMaximizeButton(
+            windowElement,
+            false
+        );
+
+        return;
+    }
+
+    windowElement.classList.remove("hidden");
+
+    if (shouldBeMaximized) {
+        saveNormalWindowState(windowElement);
+
+        windowElement.classList.add("maximized");
+        windowElement.dataset.maximized = "true";
+
+        updateMaximizeButton(
+            windowElement,
+            true
+        );
+    } else {
+        updateMaximizeButton(
+            windowElement,
+            false
+        );
+    }
+
+    if (savedWindowState.active === true) {
+        windowElement.classList.add(
+            "active-window"
+        );
+    }
+}
+
+/**
+ * Applies one saved window-state object.
+ *
+ * @param {object} savedWindowState
+ */
+function restoreWindowDesktopState(
+    savedWindowState
+) {
+    if (
+        !savedWindowState ||
+        typeof savedWindowState.id !== "string"
+    ) {
+        return;
+    }
+
+    const windowElement = getWindowById(
+        savedWindowState.id
+    );
+
+    if (!windowElement) {
+        return;
+    }
+
+    applySavedWindowGeometry(
+        windowElement,
+        savedWindowState
+    );
+
+    applySavedWindowVisibility(
+        windowElement,
+        savedWindowState
+    );
+
+    if (
+        isWindowVisible(windowElement) &&
+        !isWindowMaximized(windowElement)
+    ) {
+        keepWindowInsideDesktop(windowElement);
+    }
+}
+
+/**
+ * Recreates taskbar buttons after desktop restoration.
+ */
+function rebuildTaskbarFromDesktopState() {
+    taskbarApplications.replaceChildren();
+
+    applicationWindows.forEach(
+        (windowElement) => {
+            if (isWindowOpen(windowElement)) {
+                createTaskbarButton(
+                    windowElement
+                );
+            }
+        }
+    );
+
+    updateTaskbarState();
+}
+
+/**
+ * Ensures only one visible application is active.
+ */
+function repairActiveWindowState() {
+    const activeVisibleWindows =
+        applicationWindows.filter(
+            (windowElement) =>
+                isWindowVisible(windowElement) &&
+                windowElement.classList.contains(
+                    "active-window"
+                )
+        );
+
+    if (activeVisibleWindows.length === 1) {
+        focusWindow(
+            activeVisibleWindows[0]
+        );
+
+        return;
+    }
+
+    if (activeVisibleWindows.length > 1) {
+        const highestActiveWindow =
+            activeVisibleWindows.reduce(
+                (
+                    currentHighest,
+                    currentWindow
+                ) => {
+                    const highestZIndex =
+                        Number(
+                            currentHighest.style
+                                .zIndex || 0
+                        );
+
+                    const currentZIndex =
+                        Number(
+                            currentWindow.style
+                                .zIndex || 0
+                        );
+
+                    return currentZIndex >
+                        highestZIndex
+                        ? currentWindow
+                        : currentHighest;
+                }
+            );
+
+        clearActiveWindows();
+
+        highestActiveWindow.classList.add(
+            "active-window"
+        );
+
+        updateTaskbarState();
+        return;
+    }
+
+    focusHighestVisibleWindow();
+}
+
+/**
+ * Loads the previously saved desktop layout.
+ *
+ * @returns {boolean}
+ */
+function loadDesktopState() {
+    let savedDesktopStateJson;
+
+        try {
+            savedDesktopStateJson =
+                localStorage.getItem(
+                    DESKTOP_STATE_STORAGE_KEY
+                );
+        } catch (error) {
+            console.error(
+                "Unable to access saved desktop state.",
+                error
+            );
+
+            return false;
+        }
+
+        if (!savedDesktopStateJson) {
+            return false;
+        }
+
+        try {
+            const savedDesktopState =
+                JSON.parse(
+                    savedDesktopStateJson
+                );
+
+            if (
+                !savedDesktopState ||
+                !Array.isArray(
+                    savedDesktopState.windows
+                )
+            ) {
+                throw new Error(
+                    "Invalid desktop-state structure"
+                );
+            }
+
+            savedDesktopState.windows.forEach(
+                restoreWindowDesktopState
+            );
+
+            rebuildTaskbarFromDesktopState();
+            repairActiveWindowState();
+
+            return true;
+        } catch (error) {
+            console.error(
+                "Unable to restore desktop state.",
+                error
+            );
+
+            try {
+                localStorage.removeItem(
+                    DESKTOP_STATE_STORAGE_KEY
+                );
+            } catch (storageError) {
+                console.error(
+                    "Unable to remove invalid desktop state.",
+                    storageError
+                );
+            }
+
+            return false;
+        }
+    }
+
+    /**
+    * Resets window positions and open states.
+    */
+    function resetDesktopState() {
+    const userConfirmed = window.confirm(
+        "Reset all window positions and desktop layout?"
+    );
+
+    if (!userConfirmed) {
+        return;
+    }
+
+    suppressDesktopStateSave = true;
+
+    if (desktopStateSaveTimeoutId !== null) {
+        window.clearTimeout(
+            desktopStateSaveTimeoutId
+        );
+
+        desktopStateSaveTimeoutId = null;
+    }
+
+    try {
+        localStorage.removeItem(
+            DESKTOP_STATE_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to reset desktop state.",
+            error
+        );
+    }
+
+    window.location.reload();
+}
+
+    /**
+    * Saves state before the browser tab closes or refreshes.
+    */
+    function handlePageBeforeUnload() {
+        if (!suppressDesktopStateSave) {
+        saveDesktopState();
+    }
+}
+
+/* =========================================================
    Event registration
    ========================================================= */
 
@@ -2758,11 +3308,23 @@ function initializeWebOS() {
     loadCalculatorHistory();
 
     updateCalculatorDisplay();
-    initializeOpenWindows();
+
+    const desktopStateRestored =
+        loadDesktopState();
+
+    if (!desktopStateRestored) {
+        initializeOpenWindows();
+        saveDesktopState();
+    }
 
     window.addEventListener(
         "resize",
         keepAllWindowsInsideDesktop
+    );
+
+    window.addEventListener(
+        "beforeunload",
+        handlePageBeforeUnload
     );
 }
 

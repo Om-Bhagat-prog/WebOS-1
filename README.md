@@ -6,14 +6,14 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 9 is complete.
+Commit 10 is complete.
 
 The project currently provides:
 
 - A custom desktop background
-- Three desktop application icons
+- Five desktop application icons
 - A Welcome application
-- A Notes preview application
+- A working Notes application
 - A Nature application
 - Reusable application-window behavior
 - Working open controls
@@ -56,7 +56,7 @@ The project currently provides:
 - Six environmental activities
 - Completed-task states
 - Environmental points
-- Live prorgress bar
+- Live progress bar
 - Automatic Nature progress saving
 - Nature progress restored after refresh
 - Reset-progress confirmation
@@ -75,6 +75,14 @@ The project currently provides:
 - Calculation history
 - Persistent calculator history
 - Divide-by-zero error handling
+- Persistent window positions
+- Persistent window sizes
+- Persistent open and closed application states
+- Persistent minimized and maximized states
+- Persistent active-window state
+- Persistent window stacking order
+- Reset Windows control
+- Desktop layout restored after refresh
 
 Application windows can now be moved by dragging their title bars.
 
@@ -149,7 +157,7 @@ Users can:
 - Review recent calculations
 - Select a previous result
 - Clear calculation history
-_refresh without losing history
+- Refresh without losing history
 
 Calculator history is stored in browser local storage.
 
@@ -245,7 +253,7 @@ Taskbar buttons now have three behaviors:
 
 ## Start menu
 
-The temporary Start notification was replaced with a complete appliction launcher.
+The temporary Start notification was replaced with a complete application launcher.
 
 The Start menu includes:
 
