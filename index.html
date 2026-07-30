@@ -13,6 +13,26 @@
         content="A browser-based desktop created for Hack Club WebOS 1."
     >
 
+    <meta
+    name="theme-color"
+    content="#102d2a"
+>
+
+<meta
+    name="author"
+    content="GreenSpace WebOS developer"
+>
+
+<link
+    rel="icon"
+    href="data:image/svg+xml,
+    <svg xmlns='http://www.w3.org/2000/svg'
+         viewBox='0 0 100 100'>
+        <text y='.9em'
+              font-size='90'>🌱</text>
+    </svg>"
+>
+
     <title>GreenSpace WebOS</title>
 
     <link rel="stylesheet" href="style.css">
@@ -837,17 +857,64 @@
                             </div>
                         </div>
 
-                        <div class="system-card">
-                            <span
-                                class="status-dot"
-                                aria-hidden="true"
-                            ></span>
+                        <div
+    id="system-status-card"
+    class="system-card"
+>
+    <span
+        id="system-status-dot"
+        class="status-dot"
+        aria-hidden="true"
+    ></span>
 
-                            <div>
-                                <strong>System status</strong>
-                                <span>All applications are available</span>
-                            </div>
-                        </div>
+    <div class="system-status-content">
+        <strong>System status</strong>
+
+        <span id="system-status-text">
+            Ready for diagnostics
+        </span>
+    </div>
+
+    <button
+        id="run-diagnostics-button"
+        class="diagnostics-button"
+        type="button"
+    >
+        Run diagnostics
+    </button>
+</div>
+
+<section
+    id="diagnostics-panel"
+    class="diagnostics-panel hidden"
+    aria-labelledby="diagnostics-heading"
+>
+    <div class="diagnostics-heading">
+        <div>
+            <strong id="diagnostics-heading">
+                System diagnostics
+            </strong>
+
+            <span>
+                Final project verification
+            </span>
+        </div>
+
+        <span
+            id="diagnostics-summary"
+            class="diagnostics-summary"
+            role="status"
+            aria-live="polite"
+        >
+            Not run
+        </span>
+    </div>
+
+    <ul
+        id="diagnostics-results"
+        class="diagnostics-results"
+    ></ul>
+</section>
                     </div>
                 </div>
             </div>
@@ -1639,6 +1706,12 @@
             ></div>
 
             <div class="system-tray">
+                <span
+                    class = "build-label"
+                    title = "greenSpace WebOS final build"
+                >
+                    v1.0
+                </span>
                 <span
                     class="tray-icon"
                     title="Internet connected"

@@ -10,6 +10,61 @@ const webOSAnnouncer = document.getElementById(
     "webos-announcer"
 );
 
+function isLocalStorageAvailable() {
+    const testKey =
+        "greenspace-webos-storage-test";
+
+    try {
+        localStorage.setItem(
+            testKey,
+            "available"
+        );
+
+        localStorage.removeItem(
+            testKey
+        );
+
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+const runDiagnosticsButton =
+    document.getElementById(
+        "run-diagnostics-button"
+    );
+
+const diagnosticsPanel =
+    document.getElementById(
+        "diagnostics-panel"
+    );
+
+const diagnosticsResults =
+    document.getElementById(
+        "diagnostics-results"
+    );
+
+const diagnosticsSummary =
+    document.getElementById(
+        "diagnostics-summary"
+    );
+
+const systemStatusCard =
+    document.getElementById(
+        "system-status-card"
+    );
+
+const systemStatusDot =
+    document.getElementById(
+        "system-status-dot"
+    );
+
+const systemStatusText =
+    document.getElementById(
+        "system-status-text"
+    );
+
 const clockTime = document.getElementById("clock-time");
 const clockDate = document.getElementById("clock-date");
 
@@ -185,6 +240,31 @@ const APPLICATION_SHORTCUTS = {
     s: "settings-window",
     c: "calculator-window"
 };
+
+const EXPECTED_APPLICATION_IDS = [
+    "welcome-window",
+    "notes-window",
+    "nature-window",
+    "settings-window",
+    "calculator-window"
+];
+
+const REQUIRED_ELEMENT_IDS = [
+    "desktop",
+    "start-button",
+    "start-menu",
+    "start-search",
+    "start-app-list",
+    "taskbar-applications",
+    "clock-time",
+    "clock-date",
+    "notes-title",
+    "notes-editor",
+    "nature-challenge-list",
+    "desktop-grid-toggle",
+    "calculator-keypad",
+    "webos-announcer"
+];
 
 const MAX_CALCULATOR_HISTORY_ITEMS = 10;
 
@@ -3409,6 +3489,378 @@ function registerGlobalKeyboardShortcuts() {
 }
 
 /* =========================================================
+   Final project diagnostics
+   ========================================================= */
+
+function createDiagnosticResult(
+    name,
+    passed,
+    details
+) {
+    return {
+        name,
+        passed,
+        details
+    };
+}
+
+function checkRequiredElements() {
+    const missingElementIds =
+        REQUIRED_ELEMENT_IDS.filter(
+            (elementId) =>
+                !document.getElementById(
+                    elementId
+                )
+        );
+
+    return createDiagnosticResult(
+        "Required HTML elements",
+        missingElementIds.length === 0,
+        missingElementIds.length === 0
+            ? "All required elements are present."
+            : `Missing: ${
+                missingElementIds.join(", ")
+            }`
+    );
+}
+
+function checkApplicationWindows() {
+    const missingApplicationIds =
+        EXPECTED_APPLICATION_IDS.filter(
+            (windowId) =>
+                !document.getElementById(
+                    windowId
+                )
+        );
+
+    return createDiagnosticResult(
+        "Application windows",
+        missingApplicationIds.length === 0 &&
+            applicationWindows.length ===
+                EXPECTED_APPLICATION_IDS.length,
+
+        missingApplicationIds.length === 0
+            ? `${applicationWindows.length} application windows detected.`
+            : `Missing: ${
+                missingApplicationIds.join(", ")
+            }`
+    );
+}
+
+function checkApplicationLaunchers() {
+    const launcherCounts =
+        EXPECTED_APPLICATION_IDS.map(
+            (windowId) => ({
+                windowId,
+
+                count:
+                    document.querySelectorAll(
+                        `[data-open-window="${windowId}"]`
+                    ).length
+            })
+        );
+
+    const invalidLaunchers =
+        launcherCounts.filter(
+            (launcher) =>
+                launcher.count !== 2
+        );
+
+    return createDiagnosticResult(
+        "Application launchers",
+        invalidLaunchers.length === 0,
+        invalidLaunchers.length === 0
+            ? "Every application has a desktop and Start-menu launcher."
+            : invalidLaunchers
+                .map(
+                    (launcher) =>
+                        `${launcher.windowId}: ${launcher.count}`
+                )
+                .join(", ")
+    );
+}
+
+function checkDuplicateIds() {
+    const duplicateIds =
+        getDuplicateHtmlIds();
+
+    return createDiagnosticResult(
+        "Unique HTML IDs",
+        duplicateIds.length === 0,
+        duplicateIds.length === 0
+            ? "No duplicate HTML IDs found."
+            : `Duplicates: ${
+                duplicateIds.join(", ")
+            }`
+    );
+}
+
+function checkWindowAccessibility() {
+    const invalidTitleBars =
+        applicationWindows.filter(
+            (windowElement) => {
+                const titleBar =
+                    windowElement.querySelector(
+                        ".window-header"
+                    );
+
+                return (
+                    !titleBar ||
+                    titleBar.tabIndex !== 0
+                );
+            }
+        );
+
+    return createDiagnosticResult(
+        "Window accessibility",
+        invalidTitleBars.length === 0,
+        invalidTitleBars.length === 0
+            ? "All title bars are keyboard-focusable."
+            : `Invalid windows: ${
+                invalidTitleBars
+                    .map(
+                        (windowElement) =>
+                            windowElement.id
+                    )
+                    .join(", ")
+            }`
+    );
+}
+
+function checkWindowMetadata() {
+    const invalidWindows =
+        applicationWindows.filter(
+            (windowElement) =>
+                !windowElement.dataset.appTitle ||
+                !windowElement.dataset.appIcon ||
+                !windowElement.id
+        );
+
+    return createDiagnosticResult(
+        "Window metadata",
+        invalidWindows.length === 0,
+        invalidWindows.length === 0
+            ? "All applications have titles, icons, and IDs."
+            : `Invalid windows: ${
+                invalidWindows
+                    .map(
+                        (windowElement) =>
+                            windowElement.id ||
+                            "unnamed window"
+                    )
+                    .join(", ")
+            }`
+    );
+}
+
+function checkBrowserStorage() {
+    const storageAvailable =
+        isLocalStorageAvailable();
+
+    return createDiagnosticResult(
+        "Browser storage",
+        storageAvailable,
+        storageAvailable
+            ? "Local storage is available."
+            : "Local storage is unavailable."
+    );
+}
+
+function checkStartMenuCount() {
+    const startApplications =
+        startAppList.querySelectorAll(
+            ".start-app"
+        );
+
+    const countCorrect =
+        startApplications.length ===
+            EXPECTED_APPLICATION_IDS.length;
+
+    return createDiagnosticResult(
+        "Start-menu application count",
+        countCorrect,
+        `${startApplications.length} applications detected.`
+    );
+}
+
+function checkNatureChallenges() {
+    const challengeCount =
+        natureChallengeCards.length;
+
+    return createDiagnosticResult(
+        "Nature challenges",
+        challengeCount === 6,
+        `${challengeCount} challenges detected.`
+    );
+}
+
+function runWebOSDiagnostics() {
+    return [
+        checkRequiredElements(),
+        checkApplicationWindows(),
+        checkApplicationLaunchers(),
+        checkDuplicateIds(),
+        checkWindowAccessibility(),
+        checkWindowMetadata(),
+        checkBrowserStorage(),
+        checkStartMenuCount(),
+        checkNatureChallenges()
+    ];
+}
+
+function renderDiagnosticResult(result) {
+    const resultItem =
+        document.createElement("li");
+
+    resultItem.className =
+        `diagnostics-result ${
+            result.passed
+                ? "passed"
+                : "failed"
+        }`;
+
+    const icon =
+        document.createElement("span");
+
+    icon.className =
+        "diagnostics-result-icon";
+
+    icon.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+    icon.textContent =
+        result.passed ? "✓" : "!";
+
+    const content =
+        document.createElement("div");
+
+    const title =
+        document.createElement("strong");
+
+    title.textContent = result.name;
+
+    const details =
+        document.createElement("div");
+
+    details.textContent =
+        result.details;
+
+    content.append(
+        title,
+        details
+    );
+
+    resultItem.append(
+        icon,
+        content
+    );
+
+    return resultItem;
+}
+
+function updateSystemStatus(
+    passedCount,
+    totalCount
+) {
+    const allPassed =
+        passedCount === totalCount;
+
+    systemStatusCard.classList.toggle(
+        "failed",
+        !allPassed
+    );
+
+    systemStatusDot.classList.toggle(
+        "failed",
+        !allPassed
+    );
+
+    systemStatusText.textContent =
+        allPassed
+            ? "All diagnostics passed"
+            : `${totalCount - passedCount} diagnostic checks need attention`;
+}
+
+function displayWebOSDiagnostics() {
+    const diagnosticResults =
+        runWebOSDiagnostics();
+
+    const passedCount =
+        diagnosticResults.filter(
+            (result) => result.passed
+        ).length;
+
+    diagnosticsResults.replaceChildren(
+        ...diagnosticResults.map(
+            renderDiagnosticResult
+        )
+    );
+
+    diagnosticsPanel.classList.remove(
+        "hidden"
+    );
+
+    const allPassed =
+        passedCount ===
+        diagnosticResults.length;
+
+    diagnosticsSummary.classList.remove(
+        "passed",
+        "failed"
+    );
+
+    diagnosticsSummary.classList.add(
+        allPassed
+            ? "passed"
+            : "failed"
+    );
+
+    diagnosticsSummary.textContent =
+        `${passedCount} of ${
+            diagnosticResults.length
+        } passed`;
+
+    updateSystemStatus(
+        passedCount,
+        diagnosticResults.length
+    );
+
+    announceWebOS(
+        allPassed
+            ? "All WebOS diagnostics passed"
+            : `${
+                diagnosticResults.length -
+                passedCount
+            } WebOS diagnostics failed`
+    );
+}
+
+function registerDiagnosticsEvents() {
+    if (
+        !runDiagnosticsButton ||
+        !diagnosticsPanel ||
+        !diagnosticsResults ||
+        !diagnosticsSummary ||
+        !systemStatusCard ||
+        !systemStatusDot ||
+        !systemStatusText
+    ) {
+        console.error(
+            "Diagnostics initialization failed. Check the Hour 12 HTML."
+        );
+
+        return;
+    }
+
+    runDiagnosticsButton.addEventListener(
+        "click",
+        displayWebOSDiagnostics
+    );
+}
+
+/* =========================================================
    Event registration
    ========================================================= */
 
@@ -3631,6 +4083,64 @@ function initializeOpenWindows() {
     }
 }
 
+function getDuplicateHtmlIds() {
+    const idCounts = new Map();
+
+    document.querySelectorAll("[id]").forEach(
+        (element) => {
+            const elementId = element.id;
+
+            idCounts.set(
+                elementId,
+                (
+                    idCounts.get(elementId) ||
+                    0
+                ) + 1
+            );
+        }
+    );
+
+    return Array.from(
+        idCounts.entries()
+    )
+        .filter(
+            ([, count]) => count > 1
+        )
+        .map(
+            ([elementId]) => elementId
+        );
+}
+
+function logStartupIntegrity() {
+    const diagnostics =
+        runWebOSDiagnostics();
+
+    const failures =
+        diagnostics.filter(
+            (result) => !result.passed
+        );
+
+    if (failures.length === 0) {
+        console.info(
+            "GreenSpace WebOS startup checks passed."
+        );
+
+        return;
+    }
+
+    console.group(
+        "GreenSpace WebOS startup issues"
+    );
+
+    failures.forEach((failure) => {
+        console.error(
+            `${failure.name}: ${failure.details}`
+        );
+    });
+
+    console.groupEnd();
+}
+
 function initializeWebOS() {
     updateClock();
 
@@ -3647,8 +4157,10 @@ function initializeWebOS() {
     registerSettingsEvents();
     registerCalculatorEvents();
     registerGlobalKeyboardShortcuts();
+    registerDiagnosticsEvents();
 
     updateStartApplicationCount();
+    logStartupIntegrity();
 
     loadWebOSSettings();
     loadSavedNote();

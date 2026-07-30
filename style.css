@@ -415,6 +415,24 @@ body.dark-theme kbd {
     color: var(--window-text);
 }
 
+body.dark-theme .diagnostics-panel {
+    border-color: rgba(255, 255, 255, 0.1);
+
+    background: rgba(34, 47, 58, 0.88);
+}
+
+body.dark-theme .diagnostics-result {
+    background: rgba(20, 31, 41, 0.72);
+    color: var(--window-text);
+}
+
+body.dark-theme .diagnostics-button {
+    border-color: rgba(63, 192, 132, 0.24);
+
+    background: rgba(39, 135, 95, 0.16);
+    color: #73d6a3;
+}
+
 /* =========================================================
    Application windows
    ========================================================= */
@@ -748,6 +766,162 @@ body.dark-theme kbd {
 
     background: #2bad68;
     box-shadow: 0 0 0 5px rgba(43, 173, 104, 0.13);
+}
+
+/* =========================================================
+   Final system diagnostics
+   ========================================================= */
+
+.system-status-content {
+    display: flex;
+
+    min-width: 0;
+
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.diagnostics-button {
+    min-height: 34px;
+    padding: 0 12px;
+
+    border: 1px solid rgba(39, 135, 95, 0.22);
+    border-radius: 9px;
+
+    background: rgba(39, 135, 95, 0.08);
+    color: var(--accent-dark);
+
+    font-size: 0.72rem;
+    font-weight: 750;
+}
+
+.diagnostics-button:hover,
+.diagnostics-button:focus-visible {
+    background: rgba(39, 135, 95, 0.15);
+}
+
+.diagnostics-panel {
+    margin-top: 14px;
+    padding: 14px;
+
+    border: 1px solid rgba(72, 88, 104, 0.14);
+    border-radius: 13px;
+
+    background: rgba(241, 246, 248, 0.8);
+}
+
+.diagnostics-heading {
+    display: flex;
+
+    padding-bottom: 10px;
+
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    border-bottom: 1px solid rgba(72, 88, 104, 0.12);
+}
+
+.diagnostics-heading > div {
+    display: flex;
+
+    flex-direction: column;
+    gap: 2px;
+}
+
+.diagnostics-heading strong {
+    font-size: 0.82rem;
+}
+
+.diagnostics-heading span {
+    color: var(--muted-text);
+
+    font-size: 0.68rem;
+}
+
+.diagnostics-summary {
+    padding: 5px 8px;
+
+    border-radius: 999px;
+
+    background: rgba(72, 88, 104, 0.08);
+    color: var(--muted-text);
+
+    font-weight: 750;
+}
+
+.diagnostics-summary.passed {
+    background: rgba(39, 135, 95, 0.12);
+    color: var(--accent-dark);
+}
+
+.diagnostics-summary.failed {
+    background: rgba(217, 74, 87, 0.12);
+    color: var(--danger);
+}
+
+.diagnostics-results {
+    display: grid;
+
+    margin: 11px 0 0;
+    padding: 0;
+
+    gap: 7px;
+
+    list-style: none;
+}
+
+.diagnostics-result {
+    display: grid;
+
+    padding: 8px 9px;
+
+    grid-template-columns: 22px minmax(0, 1fr);
+    align-items: start;
+    gap: 7px;
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.55);
+
+    color: var(--window-text);
+
+    font-size: 0.7rem;
+    line-height: 1.4;
+}
+
+.diagnostics-result-icon {
+    display: grid;
+
+    width: 20px;
+    height: 20px;
+
+    place-items: center;
+
+    border-radius: 50%;
+
+    font-size: 0.68rem;
+    font-weight: 850;
+}
+
+.diagnostics-result.passed
+.diagnostics-result-icon {
+    background: rgba(39, 135, 95, 0.14);
+    color: var(--accent-dark);
+}
+
+.diagnostics-result.failed
+.diagnostics-result-icon {
+    background: rgba(217, 74, 87, 0.14);
+    color: var(--danger);
+}
+
+.build-label {
+    color: rgba(255, 255, 255, 0.62);
+
+    font-size: 0.64rem;
+    font-weight: 700;
 }
 
 /* =========================================================
@@ -2889,4 +3063,33 @@ kbd {
 
         grid-column: 1 / -1;
     }
+
+    .system-card {
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    .diagnostics-button {
+        width: 100%;
+
+        grid-column: 1 / -1;
+    }
+
+    .diagnostics-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+.system-card.failed {
+    border-color: rgba(217, 74, 87, 0.22);
+
+    background: rgba(217, 74, 87, 0.06);
+}
+
+.status-dot.failed {
+    background: var(--danger);
+
+    box-shadow:
+        0 0 0 4px rgba(217, 74, 87, 0.12);
 }
