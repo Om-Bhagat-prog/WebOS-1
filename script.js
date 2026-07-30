@@ -6,6 +6,10 @@
 
 const desktop = document.getElementById("desktop");
 
+const webOSAnnouncer = document.getElementById(
+    "webos-announcer"
+);
+
 const clockTime = document.getElementById("clock-time");
 const clockDate = document.getElementById("clock-date");
 
@@ -174,6 +178,14 @@ const CALCULATOR_HISTORY_STORAGE_KEY =
 const DESKTOP_STATE_STORAGE_KEY = 
     "greenspace-webos-desktop-state";
 
+const APPLICATION_SHORTCUTS = {
+    w: "welcome-window",
+    n: "notes-window",
+    e: "nature-window",
+    s: "settings-window",
+    c: "calculator-window"
+};
+
 const MAX_CALCULATOR_HISTORY_ITEMS = 10;
 
 let calculatorCurrentInput = "0";
@@ -214,6 +226,48 @@ function updateClock() {
         month: "short",
         day: "numeric"
     });
+}
+
+/* =========================================================
+   Accessibility announcements
+   ========================================================= */
+
+   let announcementTimeoutId = null;
+
+   function announceWebOS(message) {
+    if (!webOSAnnouncer) {
+        return;
+    }
+
+    if (announcementTimeoutId !== null) {
+        window.clearTimeout(
+            announcementTimeoutId
+        );
+    }
+
+    webOSAnnouncer.textContent = "";
+
+    announcementTimeoutId =
+        window.setTimeout(
+            () => {
+                webOSAnnouncer.textContent = 
+                    message;
+
+                    announcementTimeoutId = null;
+            },
+            40
+        );
+   }
+
+   function getApplicationTitle(windowElement) {
+    if (!windowElement) {
+        return "Application";
+    }
+
+    return (
+        windowElement.dataset.appTitle ||
+        "Application"
+    );
 }
 
 /* =========================================================
@@ -304,6 +358,36 @@ function clearActiveWindows() {
     });
 }
 
+function getActiveWindow() {
+    return applicationWindows.find(
+        (windowElement) =>
+                isWindowVisible(windowElement) &&
+                windowElement.classList.contains(
+                    "active-window"
+                )
+    )|| null;
+}
+
+function focusWindowTitleBar(windowElement) {
+    if (!windowElement) {
+        return;
+    }
+
+    const titleBar = windowElement.querySelector(
+        ".window-header"
+    );
+
+    if (!titleBar) {
+        return;
+    }
+
+    window.requestAnimationFrame(() => {
+        titleBar.focus({
+            preventScroll: true
+        });
+    });
+}
+
 function focusWindow(windowElement) {
     if (!windowElement || !isWindowVisible(windowElement)) {
         return;
@@ -364,6 +448,7 @@ function openWindow(windowId) {
         console.error(
             `No application window found for id: ${windowId}`
         );
+
         return;
     }
 
@@ -379,6 +464,15 @@ function openWindow(windowId) {
     if (isWindowMinimized(windowElement)) {
         restoreMinimizedWindow(windowElement);
         closeStartMenu();
+
+        focusWindowTitleBar(windowElement);
+
+        announceWebOS(
+            `${getApplicationTitle(
+                windowElement
+            )} restored`
+        );
+
         scheduleDesktopStateSave();
         return;
     }
@@ -388,6 +482,14 @@ function openWindow(windowId) {
 
     focusWindow(windowElement);
     closeStartMenu();
+    focusWindowTitleBar(windowElement);
+
+    announceWebOS(
+        `${getApplicationTitle(
+            windowElement
+        )} opened`
+    );
+
     scheduleDesktopStateSave();
 }
 
@@ -395,6 +497,9 @@ function closeWindow(windowElement) {
     if (!windowElement) {
         return;
     }
+
+    const applicationTitle = 
+        getApplicationTitle(windowElement);
 
     windowElement.classList.add("hidden");
 
@@ -407,12 +512,25 @@ function closeWindow(windowElement) {
     windowElement.dataset.minimized = "false";
     windowElement.dataset.maximized = "false";
 
-    normalWindowStates.delete(windowElement.id);
+    normalWindowStates.delete(
+        windowElement.id
+    );
 
-    updateMaximizeButton(windowElement, false);
-    removeTaskbarButton(windowElement.id);
+    updateMaximizeButton(
+        windowElement,
+        false
+    );
+
+    removeTaskbarButton(
+        windowElement.id
+    );
 
     focusHighestVisibleWindow();
+
+    announceWebOS(
+        `${applicationTitle} closed`
+    );
+
     scheduleDesktopStateSave();
 }
 
@@ -421,9 +539,15 @@ function closeWindow(windowElement) {
    ========================================================= */
 
 function minimizeWindow(windowElement) {
-    if (!windowElement || !isWindowVisible(windowElement)) {
+    if (
+        !windowElement || 
+        !isWindowVisible(windowElement)
+    ) {
         return;
     }
+
+    const applicationTitle =
+        getApplicationTitle(windowElement);
 
     windowElement.classList.add("hidden");
 
@@ -436,11 +560,19 @@ function minimizeWindow(windowElement) {
 
     updateTaskbarState();
     focusHighestVisibleWindow();
+
+    announceWebOS(
+        `${applicationTitle} minimized`
+    );
+
     scheduleDesktopStateSave();
 }
 
 function restoreMinimizedWindow(windowElement) {
-    if (!windowElement || !isWindowMinimized(windowElement)) {
+    if (
+        !windowElement ||
+        !isWindowMinimized(windowElement)
+    ) {
         return;
     }
 
@@ -448,6 +580,14 @@ function restoreMinimizedWindow(windowElement) {
     windowElement.classList.remove("hidden");
 
     focusWindow(windowElement);
+    focusWindowTitleBar(windowElement);
+
+    announceWebOS(
+        `${getApplicationTitle(
+            windowElement
+        )} restored`
+    );
+
     scheduleDesktopStateSave();
 }
 
@@ -524,6 +664,14 @@ function maximizeWindow(windowElement) {
 
     updateMaximizeButton(windowElement, true);
     focusWindow(windowElement);
+    focusWindowTitleBar(windowElement);
+
+    announceWebOS(
+        `${getApplicationTitle(
+            windowElement
+        )} maximized`
+    );
+
     scheduleDesktopStateSave();
 }
 
@@ -559,6 +707,14 @@ function restoreMaximizedWindow(windowElement) {
 
     updateMaximizeButton(windowElement, false);
     focusWindow(windowElement);
+    focusWindowTitleBar(windowElement);
+
+    announceWebOS(
+        `${getApplicationTitle(
+            windowElement
+        )} restored`
+    );
+
     scheduleDesktopStateSave();
 }
 
@@ -769,7 +925,12 @@ function createTaskbarButton(windowElement) {
 
     taskbarButton.setAttribute(
         "aria-label",
-        `Open ${applicationTitle}`
+        `${applicationTitle} application`
+    );
+
+    taskbarButton.setAttribute(
+        "aria-pressed",
+        "false"
     );
 
     const icon = document.createElement("span");
@@ -844,6 +1005,37 @@ function updateTaskbarState() {
             windowElement &&
             isWindowMinimized(windowElement);
 
+            taskbarButton.setAttribute(
+                "aria-pressed",
+                active ? "true" : "false"
+            );
+
+            if (minimized) {
+                taskbarButton.setAttribute(
+                    "aria-label",
+                    `Restore ${
+                    windowElement.dataset.appTitle ||
+                    "application"
+                    }`
+                );
+            } else if (active) {
+                taskbarButton.setAttribute(
+                    "aria-label",
+                    `Minimize ${
+                    windowElement.dataset.appTitle ||
+                    "application"
+                    }`
+                );
+            } else {
+                taskbarButton.setAttribute(
+                    "aria-label",
+                    `Open ${
+                    windowElement.dataset.appTitle ||
+                    "application"
+                    }`
+                );
+            }
+
         taskbarButton.classList.toggle(
             "active",
             Boolean(active)
@@ -854,6 +1046,20 @@ function updateTaskbarState() {
             Boolean(minimized)
         );
     });
+}
+
+function updateStartApplicationCount() {
+    const totalApplications = 
+        startAppList.querySelectorAll(
+            ".start-app"
+        ).length;
+
+    startAppCount.textContent =
+        `${totalApplications} ${
+        totalApplications === 1
+            ? "app"
+            : "apps"
+        }`;
 }
 
 /* =========================================================
@@ -1143,6 +1349,19 @@ function clearNote() {
     updateNoteSaveStatus("ready");
 
     notesTitle.focus();
+}
+
+function isEditableElement(element) {
+    if (!(element instanceof HTMLElement)) {
+        return false;
+    }
+
+    return (
+        element.matches(
+            "input, textarea, select"
+        ) ||
+        element.isContentEditable
+    );
 }
 
 function handleNotesKeyboardShortcut(event) {
@@ -2469,19 +2688,18 @@ function handleCalculatorKeyboard(event) {
     }
 
     if (
-        event.key === "Escape" ||
-        event.key.toLowerCase() === "c"
-    ) {
-        event.preventDefault();
+    event.key.toLowerCase() === "c"
+) {
+    event.preventDefault();
 
-        clearCalculator();
+    clearCalculator();
 
-        flashCalculatorKey(
-            '[data-calculator-action="clear"]'
-        );
+    flashCalculatorKey(
+        '[data-calculator-action="clear"]'
+    );
 
-        return;
-    }
+    return;
+}
 
     if (event.key === "%") {
         event.preventDefault();
@@ -3082,6 +3300,115 @@ function loadDesktopState() {
 }
 
 /* =========================================================
+   Global keyboard shortcuts
+   ========================================================= */
+
+   function openApplicationFromShortcut(key) {
+    const normalizedKey =
+        key.toLowerCase();
+
+    const windowId =
+        APPLICATION_SHORTCUTS[
+            normalizedKey
+        ];
+
+    if (!windowId) {
+        return false;
+    }
+
+    openWindow(windowId);
+
+    return true;
+   }
+
+   function handleWebOSKeyboardShortcuts(event) {
+    const activeElement = 
+    document.activeElement;
+
+    const typing = 
+        isEditableElement(activeElement);
+
+    const normalizedKey = 
+        event.key.toLowerCase();
+    
+    if (
+        event.ctrlKey &&
+        event.altKey &&
+        !event.shiftKey &&
+        !event.metaKey
+    ) {
+        if (
+            normalizedKey === "r" &&
+            !typing
+        ) {
+            event.preventDefault();
+            resetDesktopState();
+            return;
+        }
+
+        if (
+            openApplicationFromShortcut(
+                normalizedKey
+            )
+        ) {
+            event.preventDefault();
+            return;
+        }
+    }
+
+    if (
+        !event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        typing
+    ) {
+        return;
+    }
+
+    const activeWindow =
+        getActiveWindow();
+
+    if (!activeWindow) {
+        return;
+    }
+
+    if (
+        event.key === "F4"
+    ) {
+        event.preventDefault();
+
+        closeWindow(activeWindow);
+        return;
+    }
+
+    if (
+        normalizedKey === "m"
+    ) {
+        event.preventDefault();
+
+        minimizeWindow(activeWindow);
+        return;
+    }
+
+    if (
+        normalizedKey === "x"
+    ) {
+        event.preventDefault();
+
+        toggleMaximizeWindow(
+            activeWindow
+        );
+    }
+}
+
+function registerGlobalKeyboardShortcuts() {
+    document.addEventListener(
+        "keydown",
+        handleWebOSKeyboardShortcuts
+    );
+}
+
+/* =========================================================
    Event registration
    ========================================================= */
 
@@ -3200,6 +3527,7 @@ function registerWindowEvents() {
                 "click",
                 (event) => {
                     event.stopPropagation();
+
                     minimizeWindow(windowElement);
                 }
             );
@@ -3223,6 +3551,7 @@ function registerWindowEvents() {
                 "click",
                 (event) => {
                     event.stopPropagation();
+
                     closeWindow(windowElement);
                 }
             );
@@ -3243,6 +3572,22 @@ function registerWindowEvents() {
                     toggleMaximizeWindow(
                         windowElement
                     );
+                }
+            );
+
+            dragHandle.addEventListener(
+                "keydown",
+                (event) => {
+                    if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                    ) {
+                        event.preventDefault();
+
+                        toggleMaximizeWindow(
+                            windowElement
+                        );
+                    }
                 }
             );
         }
@@ -3301,6 +3646,9 @@ function initializeWebOS() {
     registerNatureEvents();
     registerSettingsEvents();
     registerCalculatorEvents();
+    registerGlobalKeyboardShortcuts();
+
+    updateStartApplicationCount();
 
     loadWebOSSettings();
     loadSavedNote();
@@ -3325,6 +3673,10 @@ function initializeWebOS() {
     window.addEventListener(
         "beforeunload",
         handlePageBeforeUnload
+    );
+
+    announceWebOS(
+        "GreenSpace WebOS is ready"
     );
 }
 

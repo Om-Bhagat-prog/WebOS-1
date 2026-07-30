@@ -6,7 +6,7 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 10 is complete.
+Commit 11 is complete.
 
 The project currently provides:
 
@@ -83,6 +83,37 @@ The project currently provides:
 - Persistent window stacking order
 - Reset Windows control
 - Desktop layout restored after refresh
+- Global application keyboard shortcuts
+- Alt + F4 active-window closing
+- Alt + M active-window minimization
+- Alt + X maximize and restore shortcut
+- Ctrl + Alt + R desktop-layout reset
+- Keyboard-focusable window title bars
+- Enter and Space title-bar controls
+- Screen-reader application announcements
+- Dynamic Start-menu application count
+- Improved taskbar ARIA states
+- Improved visible focus indicators
+- Editable-field shortcut protection
+
+## Keyboard shortcuts
+
+GreenSpace WebOS supports desktop-wide keyboard controls.
+
+| Shortcut | Action |
+|---|---|
+| Ctrl + Alt + W | Open Welcome |
+| Ctrl + Alt + N | Open Notes |
+| Ctrl + Alt + E | Open Nature |
+| Ctrl + Alt + S | Open Settings |
+| Ctrl + Alt + C | Open Calculator |
+| Ctrl + Alt + R | Reset window layout |
+| Alt + M | Minimize active window |
+| Alt + X | Maximize or restore active window |
+| Alt + F4 | Close active WebOS window |
+| Enter or Space | Maximize or restore a focused title bar |
+| Ctrl + S | Save Notes |
+| Enter | Calculate when Calculator is open |
 
 Application windows can now be moved by dragging their title bars.
 
@@ -698,7 +729,49 @@ button was clicked.
 
 #### Next Development commit
 
-Commit 8 will add a Settings application with wallpaper and interface preferences. 
+Commit 8 will add a Settings application with wallpaper and interface preferences.
+
+---
+
+### Devlog 11 - Keyboard shortcuts and accessibility
+
+#### Goal 
+
+Improve keyboard navigation, screen-reader communication, and
+application usability.
+
+#### Work completed
+
+- Added global application shortcuts
+- Added active-window keyboard controls
+- Added keyboard-focusable window title bars
+- Added screen-reader status announcements
+- Added dynamic taskbar labels and pressed states
+- Added visible focus indicators
+- Protected shortcuts while users type
+- Removed the Calculator Escape-key conflict
+- Added a dynamic Start-menu application count
+- Added keyboard documentation to Welcome
+
+#### Technical decisions
+
+Keyboard shortcuts are handled through one global keydown listener.
+
+Shortcut handling first checks whether the user is typing inside an
+input, textarea, select element, or editable element. Window-control
+shortcuts are ignored in those situations.
+
+The screen-reader announcer uses an ARIA live region. Window actions
+update that region with messages such as opened, closed, minimized,
+maximized, and restored.
+
+Application shortcuts are stored in an object that maps keys to window
+IDs, avoiding repeated conditional blocks.
+
+#### Next development hour
+
+Hour 12 will complete final testing, README cleanup, screenshots,
+deployment, and submission preparation.
 
 ## Planned features
 

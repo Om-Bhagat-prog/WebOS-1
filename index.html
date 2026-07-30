@@ -19,7 +19,19 @@
 </head>
 
 <body>
-    <main id="desktop" class="desktop">
+    <div
+        id = "webos-announcer"
+        class = "visually-hidden"
+        role = "status"
+        aria-live = "polite"
+        aria-atomic = "true"
+    ></div>
+
+        <main
+            id = "desktop"
+            class = "desktop"
+            aria-label = "GreenSpace WebOS desktop"
+        >
         <!-- =====================================================
              Desktop application icons
              ===================================================== -->
@@ -131,6 +143,7 @@
                 <header
                     class = "window-header"
                     data-drag-handle
+                    tabindex = "0"
                 >
                     <div class = "window-title">
                         <span aria-hidden = "true">⚙️</span>
@@ -411,6 +424,7 @@
                 <header
                     class = "window-header"
                     data-drag-handle
+                    tabindex = "0"
                 >
                     <div class = "window-title">
                         <span aria-hidden = "true">🧮</span>
@@ -442,10 +456,11 @@
                         </button>
 
                         <button
-                            class = "window-control close-control"
-                            type = "button"
+                            class="window-control close-control"
+                            type="button"
                             data-close-window
-                            aria-label = "Close Calculator"
+                            aria-label="Close Calculator"
+                            title="Close Calculator"
                         >
                             ×
                         </button>
@@ -713,6 +728,7 @@
             <header
                 class="window-header"
                 data-drag-handle
+                tabindex = "0"
             >
                 <div class="window-title">
                     <span aria-hidden="true">🌎</span>
@@ -785,6 +801,42 @@
                             restored, and closed.
                         </p>
 
+                        <div class = "shortcut-card">
+                            <strong>Keyboard shortcuts</strong>
+
+                            <div class = "shortcut-list">
+                                <span>
+                                    <kbd>Ctrl</kbd>
+                                    <span>+</span>
+                                    <kbd>Alt</kbd>
+                                    <span>+</span>
+                                    <kbd>N</kbd>
+                                    <span>Open Notes</span>
+                                </span>
+
+                                <span>
+                                    <kbd>Alt</kbd>
+                                    <span>+</span>
+                                    <kbd>M</kbd>
+                                    <span>Minimize active window</span>
+                                </span>
+
+                                <span>
+                                    <kbd>Alt</kbd>
+                                    <span>+</span>
+                                    <kbd>X</kbd>
+                                    <span>Maximize or restore</span>
+                                </span>
+
+                                <span>
+                                    <kbd>Alt</kbd>
+                                    <span>+</span>
+                                    <kbd>F4</kbd>
+                                    <span>Close active window</span>
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="system-card">
                             <span
                                 class="status-dot"
@@ -818,6 +870,7 @@
             <header
                 class="window-header"
                 data-drag-handle
+                tabindex = "0"
             >
                 <div class="window-title">
                     <span aria-hidden="true">📝</span>
@@ -984,6 +1037,7 @@
                 <header
                     class = "window-header"
                     data-drag-handle
+                    tabindex = "0"
                 >
                     <div class = "window-title">
                         <span aria-hidden = "true">🌿</span>

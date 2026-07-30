@@ -77,6 +77,28 @@
         0 5px 18px rgba(0, 0, 0, 0.24);
 }
 
+:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset:3px;
+}
+
+.desktop-icon:focus-visible,
+.start-app:focus-visible,
+.taskbar-app:focus-visible,
+.start-button:focus-visible,
+.power-button:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.92);
+    outline-offset:2px;
+}
+
+.window-header:focus-visible {
+    position: relative;
+    z-index: 2;
+
+    outline: 3px solid var(--accent);
+    outline-offset: -3px;
+}
+
 /* =========================================================
    Base styles
    ========================================================= */
@@ -377,6 +399,19 @@ body.dark-theme .calculator-key-equals {
 }
 
 body.dark-theme .calculator-history-item {
+    color: var(--window-text);
+}
+
+body.dark-theme .shortcut-card {
+    border-color: rgba(63, 192, 132, 0.19);
+
+    background: rgba(39, 135, 95, 0.11);
+}
+
+body.dark-theme kbd {
+    border-color: rgba(255, 255, 255, 0.14);
+
+    background: rgba(35, 48, 60, 0.96);
     color: var(--window-text);
 }
 
@@ -713,6 +748,74 @@ body.dark-theme .calculator-history-item {
 
     background: #2bad68;
     box-shadow: 0 0 0 5px rgba(43, 173, 104, 0.13);
+}
+
+/* =========================================================
+   Keyboard shortcut information
+   ========================================================= */
+
+.shortcut-card {
+    margin-top: 18px;
+    padding: 15px;
+
+    border: 1px solid rgba(39, 135, 95, 0.16);
+    border-radius: 13px;
+
+    background: rgba(39, 135, 95, 0.06);
+}
+
+.shortcut-card > strong {
+    display: block;
+
+    margin-bottom: 11px;
+
+    color: var(--window-text);
+
+    font-size: 0.82rem;
+}
+
+.shortcut-list {
+    display: grid;
+    gap: 8px;
+}
+
+.shortcut-list > span {
+    display: grid;
+
+    grid-template-columns:
+        auto auto auto auto auto minmax(0, 1fr);
+
+    align-items: center;
+    gap: 5px;
+
+    color: var(--muted-text);
+
+    font-size: 0.7rem;
+}
+
+.shortcut-list > span > span:last-child {
+    margin-left: 5px;
+}
+
+kbd {
+    display: inline-grid;
+
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+
+    place-items: center;
+    
+    border: 1px solid rgba(72, 88, 104, 0.24);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+
+    background: rgba(247, 250, 252, 0.94);
+    color: var(--window-text);
+
+    font-family: inherit;
+    font-size: 0.67rem;
+    font-weight: 750'
 }
 
 /* =========================================================
@@ -2771,5 +2874,19 @@ body.dark-theme .calculator-history-item {
     .settings-footer-actions .reset-settings-button {
         width: 100%;
         justify-content: center;
+    }
+
+    .shortcut-list > span {
+        grid-template-columns: 
+            auto auto auto auto auto;
+
+        justify-content: start;
+    }
+
+    .shortcut-list > span > span:last-child {
+        margin-top: 3px;
+        margin-left: 0;
+
+        grid-column: 1 / -1;
     }
 }
