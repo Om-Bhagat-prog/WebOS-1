@@ -6,7 +6,7 @@ The project is being built in focused one-commit development sessions. Each sess
 
 ## Current status
 
-Commit 8 is complete.
+Commit 9 is complete.
 
 The project currently provides:
 
@@ -67,6 +67,14 @@ The project currently provides:
 - Automatic appearance preference saving
 - Appearance preferences restored after refresh
 - Reset appearance confirmation
+- Working Calculator application
+- Addition, subtraction, multiplication, and division
+- Decimal and negative-number support
+- Percentage calculations
+- Keyboard calculator controls
+- Calculation history
+- Persistent calculator history
+- Divide-by-zero error handling
 
 Application windows can now be moved by dragging their title bars.
 
@@ -126,6 +134,24 @@ Users can:
 - Refresh the browser without losing their choices
 
 Settings are stored using browser local storage.
+
+### Calculator
+
+The Calculator application supports standard arithmetic calculations.
+
+Users can:
+
+- Add, subtract, multiply, and divide
+- Enter decimal and negative numbers
+- Convert a number into a percentage
+- Use the mouse or keyboard
+- Delete the last entered character
+- Review recent calculations
+- Select a previous result
+- Clear calculation history
+_refresh without losing history
+
+Calculator history is stored in browser local storage.
 
 ## Window behavior
 

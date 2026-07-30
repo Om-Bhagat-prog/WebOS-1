@@ -120,6 +120,31 @@ const openWindowButtons = document.querySelectorAll(
     "[data-open-window]"
 );
 
+const calculatorExpression = document.getElementById(
+    "calculator-expression"
+);
+
+const calculatorResult = document.getElementById(
+    "calculator-result"
+);
+
+const calculatorKeypad = document.getElementById(
+    "calculator-keypad"
+);
+
+const calculatorHistoryList = document.getElementById(
+    "calculator-history-list"
+);
+
+const calculatorHistoryEmpty = document.getElementById(
+    "calculator-history-empty"
+);
+
+const clearCalculatorHistoryButton = 
+    document.getElementById(
+        "clear-calculator-history"
+    );
+
 /* =========================================================
    Application state
    ========================================================= */
@@ -136,6 +161,17 @@ const NATURE_STORAGE_KEY =
 
 const SETTINGS_STORAGE_KEY = 
     "greenspace-webos-settings";
+
+const CALCULATOR_HISTORY_STORAGE_KEY = 
+    "greenspace-webos-calculator-history";
+
+const MAX_CALCULATOR_HISTORY_ITEMS = 10;
+
+let calculatorCurrentInput = "0";
+let calculatorStoredValue = null;
+let calculatorPendingOperator = null;
+let calculatorWaitingForOperand = false;
+let calculatorHistory = [];
 
 const DEFAULT_WEBOS_SETTINGS = {
     wallpaper: "forest",
@@ -1757,6 +1793,745 @@ function registerSettingsEvents() {
 }
 
 /* =========================================================
+   Calculator application
+   ========================================================= */
+
+function formatCalculatorNumber(value) {
+    if (!Number.isFinite(value)) {
+        return "Error";
+    }
+
+    const absoluteValue = Math.abs(value);
+
+    if (
+        absoluteValue !== 0 &&
+        (
+            absoluteValue >= 1e12 ||
+            absoluteValue < 1e-8
+        )
+    ) {
+        return value.toExponential(8);
+    }
+
+    return Number(
+        value.toPrecision(12)
+    ).toString();
+}
+
+function getCalculatorDisplayValue() {
+    const numericValue = Number(
+        calculatorCurrentInput
+    );
+
+    if (!Number.isFinite(numericValue)) {
+        return calculatorCurrentInput;
+    }
+
+    return formatCalculatorNumber(
+        numericValue
+    );
+}
+
+function getCalculatorOperatorSymbol(operator) {
+    const symbols = {
+        "+": "+",
+        "-": "−",
+        "*": "×",
+        "/": "÷"
+    };
+
+    return symbols[operator] || operator;
+}
+
+function updateCalculatorDisplay() {
+    calculatorResult.classList.remove("error");
+
+    calculatorResult.textContent =
+        getCalculatorDisplayValue();
+
+    if (
+        calculatorStoredValue !== null &&
+        calculatorPendingOperator
+    ) {
+        calculatorExpression.textContent =
+            `${formatCalculatorNumber(
+                calculatorStoredValue
+            )} ${getCalculatorOperatorSymbol(
+                calculatorPendingOperator
+            )}`;
+    } else {
+        calculatorExpression.innerHTML =
+            "&nbsp;";
+    }
+}
+
+function showCalculatorError(message) {
+    calculatorExpression.textContent = "Calculation error";
+
+    calculatorResult.textContent = message;
+    calculatorResult.classList.add("error");
+
+    calculatorCurrentInput = "0";
+    calculatorStoredValue = null;
+    calculatorPendingOperator = null;
+    calculatorWaitingForOperand = false;
+}
+
+function inputCalculatorDigit(digit) {
+    if (calculatorResult.classList.contains("error")) {
+        calculatorResult.classList.remove("error");
+        calculatorCurrentInput = "0";
+    }
+
+    if (calculatorWaitingForOperand) {
+        calculatorCurrentInput = digit;
+        calculatorWaitingForOperand = false;
+    } else {
+        calculatorCurrentInput =
+            calculatorCurrentInput === "0"
+                ? digit
+                : calculatorCurrentInput + digit;
+    }
+
+    updateCalculatorDisplay();
+}
+
+function inputCalculatorDecimal() {
+    if (calculatorResult.classList.contains("error")) {
+        calculatorResult.classList.remove("error");
+        calculatorCurrentInput = "0";
+    }
+
+    if (calculatorWaitingForOperand) {
+        calculatorCurrentInput = "0.";
+        calculatorWaitingForOperand = false;
+
+        updateCalculatorDisplay();
+        return;
+    }
+
+    if (!calculatorCurrentInput.includes(".")) {
+        calculatorCurrentInput += ".";
+    }
+
+    updateCalculatorDisplay();
+}
+
+function performCalculatorOperation(
+    firstValue,
+    secondValue,
+    operator
+) {
+    switch (operator) {
+        case "+":
+            return firstValue + secondValue;
+
+        case "-":
+            return firstValue - secondValue;
+
+        case "*":
+            return firstValue * secondValue;
+
+        case "/":
+            if (secondValue === 0) {
+                throw new Error(
+                    "Cannot divide by zero"
+                );
+            }
+
+            return firstValue / secondValue;
+
+        default:
+            return secondValue;
+    }
+}
+
+function addCalculatorHistoryItem(
+    expression,
+    result
+) {
+    calculatorHistory.unshift({
+        expression,
+        result
+    });
+
+    calculatorHistory =
+        calculatorHistory.slice(
+            0,
+            MAX_CALCULATOR_HISTORY_ITEMS
+        );
+
+    saveCalculatorHistory();
+    renderCalculatorHistory();
+}
+
+function selectCalculatorOperator(operator) {
+    const inputValue = Number(
+        calculatorCurrentInput
+    );
+
+    if (!Number.isFinite(inputValue)) {
+        showCalculatorError("Invalid number");
+        return;
+    }
+
+    if (
+        calculatorPendingOperator &&
+        !calculatorWaitingForOperand &&
+        calculatorStoredValue !== null
+    ) {
+        try {
+            const result = performCalculatorOperation(
+                calculatorStoredValue,
+                inputValue,
+                calculatorPendingOperator
+            );
+
+            calculatorCurrentInput =
+                formatCalculatorNumber(result);
+
+            calculatorStoredValue = result;
+        } catch (error) {
+            showCalculatorError(error.message);
+            return;
+        }
+    } else {
+        calculatorStoredValue = inputValue;
+    }
+
+    calculatorPendingOperator = operator;
+    calculatorWaitingForOperand = true;
+
+    updateCalculatorDisplay();
+}
+
+function calculateCalculatorResult() {
+    if (
+        calculatorStoredValue === null ||
+        !calculatorPendingOperator
+    ) {
+        return;
+    }
+
+    const secondValue = Number(
+        calculatorCurrentInput
+    );
+
+    if (!Number.isFinite(secondValue)) {
+        showCalculatorError("Invalid number");
+        return;
+    }
+
+    const firstValue = calculatorStoredValue;
+    const operator = calculatorPendingOperator;
+
+    try {
+        const result = performCalculatorOperation(
+            firstValue,
+            secondValue,
+            operator
+        );
+
+        const formattedResult =
+            formatCalculatorNumber(result);
+
+        const expression =
+            `${formatCalculatorNumber(
+                firstValue
+            )} ${getCalculatorOperatorSymbol(
+                operator
+            )} ${formatCalculatorNumber(
+                secondValue
+            )}`;
+
+        addCalculatorHistoryItem(
+            expression,
+            formattedResult
+        );
+
+        calculatorCurrentInput =
+            formattedResult;
+
+        calculatorStoredValue = null;
+        calculatorPendingOperator = null;
+        calculatorWaitingForOperand = true;
+
+        calculatorExpression.textContent =
+            `${expression} =`;
+
+        calculatorResult.textContent =
+            formattedResult;
+
+        calculatorResult.classList.remove("error");
+    } catch (error) {
+        showCalculatorError(error.message);
+    }
+}
+
+function clearCalculator() {
+    calculatorCurrentInput = "0";
+    calculatorStoredValue = null;
+    calculatorPendingOperator = null;
+    calculatorWaitingForOperand = false;
+
+    updateCalculatorDisplay();
+}
+
+function deleteCalculatorCharacter() {
+    if (
+        calculatorWaitingForOperand ||
+        calculatorResult.classList.contains("error")
+    ) {
+        return;
+    }
+
+    if (
+        calculatorCurrentInput.length === 1 ||
+        (
+            calculatorCurrentInput.length === 2 &&
+            calculatorCurrentInput.startsWith("-")
+        )
+    ) {
+        calculatorCurrentInput = "0";
+    } else {
+        calculatorCurrentInput =
+            calculatorCurrentInput.slice(0, -1);
+    }
+
+    updateCalculatorDisplay();
+}
+
+function toggleCalculatorSign() {
+    if (calculatorCurrentInput === "0") {
+        return;
+    }
+
+    calculatorCurrentInput =
+        calculatorCurrentInput.startsWith("-")
+            ? calculatorCurrentInput.slice(1)
+            : `-${calculatorCurrentInput}`;
+
+    updateCalculatorDisplay();
+}
+
+function applyCalculatorPercentage() {
+    const numericValue = Number(
+        calculatorCurrentInput
+    );
+
+    if (!Number.isFinite(numericValue)) {
+        showCalculatorError("Invalid number");
+        return;
+    }
+
+    calculatorCurrentInput =
+        formatCalculatorNumber(
+            numericValue / 100
+        );
+
+    updateCalculatorDisplay();
+}
+
+function saveCalculatorHistory() {
+    try {
+        localStorage.setItem(
+            CALCULATOR_HISTORY_STORAGE_KEY,
+            JSON.stringify(calculatorHistory)
+        );
+    } catch (error) {
+        console.error(
+            "Unable to save calculator history.",
+            error
+        );
+    }
+}
+
+function loadCalculatorHistory() {
+    let storedHistoryJson;
+
+    try {
+        storedHistoryJson = localStorage.getItem(
+            CALCULATOR_HISTORY_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to access calculator history.",
+            error
+        );
+
+        renderCalculatorHistory();
+        return;
+    }
+
+    if (!storedHistoryJson) {
+        renderCalculatorHistory();
+        return;
+    }
+
+    try {
+        const storedHistory =
+            JSON.parse(storedHistoryJson);
+
+        calculatorHistory =
+            Array.isArray(storedHistory)
+                ? storedHistory
+                    .filter(
+                        (historyItem) =>
+                            historyItem &&
+                            typeof historyItem.expression ===
+                                "string" &&
+                            typeof historyItem.result ===
+                                "string"
+                    )
+                    .slice(
+                        0,
+                        MAX_CALCULATOR_HISTORY_ITEMS
+                    )
+                : [];
+    } catch (error) {
+        console.error(
+            "Unable to load calculator history.",
+            error
+        );
+
+        calculatorHistory = [];
+
+        try {
+            localStorage.removeItem(
+                CALCULATOR_HISTORY_STORAGE_KEY
+            );
+        } catch (storageError) {
+            console.error(
+                "Unable to remove invalid calculator history.",
+                storageError
+            );
+        }
+    }
+
+    renderCalculatorHistory();
+}
+
+function renderCalculatorHistory() {
+    calculatorHistoryList.replaceChildren();
+
+    calculatorHistoryEmpty.classList.toggle(
+        "hidden",
+        calculatorHistory.length > 0
+    );
+
+    calculatorHistory.forEach(
+        (historyItem) => {
+            const historyButton =
+                document.createElement("button");
+
+            historyButton.type = "button";
+            historyButton.className =
+                "calculator-history-item";
+
+            const expressionElement =
+                document.createElement("span");
+
+            expressionElement.className =
+                "calculator-history-expression";
+
+            expressionElement.textContent =
+                historyItem.expression;
+
+            const resultElement =
+                document.createElement("span");
+
+            resultElement.className =
+                "calculator-history-result";
+
+            resultElement.textContent =
+                `= ${historyItem.result}`;
+
+            historyButton.append(
+                expressionElement,
+                resultElement
+            );
+
+            historyButton.addEventListener(
+                "click",
+                () => {
+                    calculatorCurrentInput =
+                        historyItem.result;
+
+                    calculatorStoredValue = null;
+                    calculatorPendingOperator = null;
+                    calculatorWaitingForOperand = true;
+
+                    calculatorExpression.textContent =
+                        historyItem.expression;
+
+                    calculatorResult.textContent =
+                        historyItem.result;
+
+                    calculatorResult.classList.remove(
+                        "error"
+                    );
+                }
+            );
+
+            calculatorHistoryList.appendChild(
+                historyButton
+            );
+        }
+    );
+}
+
+function clearCalculatorHistory() {
+    if (calculatorHistory.length === 0) {
+        return;
+    }
+
+    const userConfirmed = window.confirm(
+        "Clear calculator history?"
+    );
+
+    if (!userConfirmed) {
+        return;
+    }
+
+    calculatorHistory = [];
+
+    try {
+        localStorage.removeItem(
+            CALCULATOR_HISTORY_STORAGE_KEY
+        );
+    } catch (error) {
+        console.error(
+            "Unable to clear calculator history.",
+            error
+        );
+    }
+
+    renderCalculatorHistory();
+}
+
+function handleCalculatorAction(action) {
+    switch (action) {
+        case "clear":
+            clearCalculator();
+            break;
+
+        case "delete":
+            deleteCalculatorCharacter();
+            break;
+
+        case "decimal":
+            inputCalculatorDecimal();
+            break;
+
+        case "toggle-sign":
+            toggleCalculatorSign();
+            break;
+
+        case "percent":
+            applyCalculatorPercentage();
+            break;
+
+        case "equals":
+            calculateCalculatorResult();
+            break;
+
+        default:
+            break;
+    }
+}
+
+function isCalculatorWindowVisible() {
+    const calculatorWindow =
+        getWindowById("calculator-window");
+
+    return (
+        calculatorWindow &&
+        isWindowVisible(calculatorWindow)
+    );
+}
+
+function flashCalculatorKey(selector) {
+    const key = calculatorKeypad.querySelector(
+        selector
+    );
+
+    if (!key) {
+        return;
+    }
+
+    key.classList.add("key-pressed");
+
+    window.setTimeout(
+        () => {
+            key.classList.remove("key-pressed");
+        },
+        100
+    );
+}
+
+function handleCalculatorKeyboard(event) {
+    if (!isCalculatorWindowVisible()) {
+        return;
+    }
+
+    if (/^[0-9]$/.test(event.key)) {
+        event.preventDefault();
+
+        inputCalculatorDigit(event.key);
+
+        flashCalculatorKey(
+            `[data-calculator-number="${event.key}"]`
+        );
+
+        return;
+    }
+
+    if (
+        ["+", "-", "*", "/"].includes(
+            event.key
+        )
+    ) {
+        event.preventDefault();
+
+        selectCalculatorOperator(event.key);
+
+        flashCalculatorKey(
+            `[data-calculator-operator="${event.key}"]`
+        );
+
+        return;
+    }
+
+    if (event.key === ".") {
+        event.preventDefault();
+
+        inputCalculatorDecimal();
+
+        flashCalculatorKey(
+            '[data-calculator-action="decimal"]'
+        );
+
+        return;
+    }
+
+    if (
+        event.key === "Enter" ||
+        event.key === "="
+    ) {
+        event.preventDefault();
+
+        calculateCalculatorResult();
+
+        flashCalculatorKey(
+            '[data-calculator-action="equals"]'
+        );
+
+        return;
+    }
+
+    if (event.key === "Backspace") {
+        event.preventDefault();
+
+        deleteCalculatorCharacter();
+
+        flashCalculatorKey(
+            '[data-calculator-action="delete"]'
+        );
+
+        return;
+    }
+
+    if (
+        event.key === "Escape" ||
+        event.key.toLowerCase() === "c"
+    ) {
+        event.preventDefault();
+
+        clearCalculator();
+
+        flashCalculatorKey(
+            '[data-calculator-action="clear"]'
+        );
+
+        return;
+    }
+
+    if (event.key === "%") {
+        event.preventDefault();
+
+        applyCalculatorPercentage();
+
+        flashCalculatorKey(
+            '[data-calculator-action="percent"]'
+        );
+    }
+}
+
+function registerCalculatorEvents() {
+    if (
+        !calculatorExpression ||
+        !calculatorResult ||
+        !calculatorKeypad ||
+        !calculatorHistoryList ||
+        !calculatorHistoryEmpty ||
+        !clearCalculatorHistoryButton
+    ) {
+        console.error(
+            "Calculator initialization failed. Check the Hour 9 Calculator HTML."
+        );
+
+        return;
+    }
+
+    calculatorKeypad.addEventListener(
+        "click",
+        (event) => {
+            const calculatorKey =
+                event.target.closest(
+                    ".calculator-key"
+                );
+
+            if (!calculatorKey) {
+                return;
+            }
+
+            const number =
+                calculatorKey.dataset.calculatorNumber;
+
+            const operator =
+                calculatorKey.dataset.calculatorOperator;
+
+            const action =
+                calculatorKey.dataset.calculatorAction;
+
+            if (number !== undefined) {
+                inputCalculatorDigit(number);
+                return;
+            }
+
+            if (operator) {
+                selectCalculatorOperator(operator);
+                return;
+            }
+
+            if (action) {
+                handleCalculatorAction(action);
+            }
+        }
+    );
+
+    clearCalculatorHistoryButton.addEventListener(
+        "click",
+        clearCalculatorHistory
+    );
+
+    document.addEventListener(
+        "keydown",
+        handleCalculatorKeyboard
+    );
+}
+
+/* =========================================================
    Event registration
    ========================================================= */
 
@@ -1975,10 +2750,14 @@ function initializeWebOS() {
     registerNotesEvents();
     registerNatureEvents();
     registerSettingsEvents();
+    registerCalculatorEvents();
 
     loadWebOSSettings();
     loadSavedNote();
     loadNatureProgress();
+    loadCalculatorHistory();
+
+    updateCalculatorDisplay();
     initializeOpenWindows();
 
     window.addEventListener(

@@ -80,19 +80,36 @@
             </button>
 
             <button
-                class = "desktop-icon"
-                type = "button"
-                data-open-window = "settings-window"
+                class="desktop-icon"
+                type="button"
+                data-open-window="settings-window"
             >
                 <span
-                    class = "desktop-icon-image"
-                    aria-hidden = "true"
+                    class="desktop-icon-image"
+                    aria-hidden="true"
                 >
                     ⚙️
                 </span>
 
-                <span class = "desktop-icon-label">
+                <span class="desktop-icon-label">
                     Settings
+                </span>
+            </button>
+
+            <button
+                class="desktop-icon"
+                type="button"
+                data-open-window="calculator-window"
+            >
+                <span
+                    class="desktop-icon-image"
+                    aria-hidden="true"
+                >
+                    🧮
+                </span>
+
+                <span class="desktop-icon-label">
+                    Calculator
                 </span>
             </button>
         </section>
@@ -192,7 +209,7 @@
                             </strong>
 
                             <span>
-                                Select a background or your WebOS desktop.
+                                Select a background for your WebOS desktop.
                             </span>
                         </div>
                     </div>
@@ -246,7 +263,7 @@
                             aria-checked="false"
                         >
                             <span
-                                class = "walpaper-preview wallpaper-ocean"
+                                class = "wallpaper-preview wallpaper-ocean"
                                 aria-hidden = "true"
                             ></span>
 
@@ -307,7 +324,7 @@
                             aria-checked = "false"
                         >
                             <span
-                                class = 'theme-preview theme-preview-dark'
+                                class="theme-preview theme-preview-dark"
                                 aria-hidden = "true"
                             >
                                 <span></span>
@@ -369,6 +386,305 @@
                 </footer>
             </div>
             </section>
+
+            <section
+                id = "calculator-window"
+                class = "app-window hidden"
+                data-window
+                data-app-title = "Calculator"
+                data-app-icon = "🧮"
+                data-minimized = "false"
+                data-maximized = "false"
+                aria-label = "Calculator application"
+            >
+                <header
+                    class = "window-header"
+                    data-drag-handle
+                >
+                    <div class = "window-title">
+                        <span aria-hidden = "true">🧮</span>
+                        <span>Calculator</span>
+                    </div>
+
+                    <div 
+                        class = "window-controls"
+                        aria-label = "Window controls"
+                    >
+                        <button
+                            class = "window-control"
+                            type = "button"
+                            data-minimize-window
+                            aria-label = "Minimize Calculator"
+                            title = "Minimize Calculator"
+                        >
+                            −
+                        </button>
+
+                        <button
+                            class = "window-control maximize-control"
+                            type = "button"
+                            data-maximize-window
+                            aria-label = "Maximize Calculator"
+                            title = "Maximize Calculator"
+                        >
+                            □
+                        </button>
+
+                        <button
+                            class = "window-control close-control"
+                            type = "button"
+                            data-close-window
+                            aria-label = "Close Calculator"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </header>
+
+                <div class = "window-content calculator-window-content">
+                    <div class= "calculator-layout">
+                        <section
+                            class = "calculator-main"
+                            aria-label = "Calculator controls"
+                        >
+                            <div
+                                class = "calculator-display"
+                                aria-live = "polite"
+                                aria-atomic = "true"
+                            >
+                                <div
+                                    id = "calculator-expression"
+                                    class = "calculator-expression"
+                                >
+                                    &nbsp;
+                                </div>
+
+                                <output
+                                    id = "calculator-result"
+                                    class = "calculator-result"
+                                >
+                                    0
+                                </output>
+                            </div>
+
+                            <div
+                                id = "calculator-keypad"
+                                class = "calculator-keypad"
+                            >
+                                <button
+                                    class = "calculator-key calculator-key-secondary"
+                                    type = "button"
+                                    data-calculator-action = "clear"
+                                    aria-label = "Clear calculator"
+                                >
+                                    AC
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-secondary"
+                                    type = "button"
+                                    data-calculator-action = "delete"
+                                    aria-label = "Delete last character"
+                                >
+                                    ⌫
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-secondary"
+                                    type = "button"
+                                    data-calculator-action = "percent"
+                                    aria-label = "Percentage"
+                                >
+                                    %
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-operator"
+                                    type = "button"
+                                    data-calculator-operator = "/"
+                                    aria-label = "Divide"
+                                >
+                                    ÷
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "7"
+                                >
+                                    7
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "8"
+                                >
+                                    8
+                                </button>
+
+                                <button 
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "9"
+                                >
+                                    9
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-operator"
+                                    type = "button"
+                                    data-calculator-operator = "*"
+                                    aria-label = "Multiply"
+                                >
+                                    ×
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number="4"
+                                >
+                                    4
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "5"
+                                >
+                                    5
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "6"
+                                >
+                                   6
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-operator"
+                                    type = "button"
+                                    data-calculator-operator = "-"
+                                    aria-label = "Subtract"
+                                >
+                                    −
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "1"
+                                >
+                                    1
+                                </button>
+
+                                <button
+                                    class="calculator-key"
+                                    type="button"
+                                    data-calculator-number="2"
+                                >
+                                    2
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number="3"
+                                >
+                                    3
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-operator"
+                                    type = "button"
+                                    data-calculator-operator="+"
+                                    aria-label = "Add"
+                                >
+                                    +
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-secondary"
+                                    type = "button"
+                                    data-calculator-action="toggle-sign"
+                                    aria-label = "Change positive or negative sign"
+                                >
+                                    ±
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-number = "0"
+                                >
+                                    0
+                                </button>
+
+                                <button
+                                    class = "calculator-key"
+                                    type = "button"
+                                    data-calculator-action = "decimal"
+                                    aria-label = "Decimal point"
+                                >
+                                    .
+                                </button>
+
+                                <button
+                                    class = "calculator-key calculator-key-equals"
+                                    type = "button"
+                                    data-calculator-action="equals"
+                                    aria-label = "Calculate result"
+                                >
+                                    =
+                                </button>
+                            </div>
+                        </section>
+
+                        <aside class = "calculator-history">
+                            <div class = "calculator-history-heading">
+                                <div>
+                                    <strong>History</strong>
+                                    <span>Recent calculations</span>
+                                </div>
+
+                                <button
+                                    id = "clear-calculator-history"
+                                    class = "calculator-history-clear"
+                                    type = "button"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+
+                            <div
+                                id = "calculator-history-list"
+                                class = "calculator-history-list"
+                            ></div>
+
+                            <p
+                                id = "calculator-history-empty"
+                                class = "calculator-history-empty"
+                            >
+                                Your completed calculations will appear here.
+                            </p>
+                        </aside>
+                    </div>
+
+                    <footer class = "calculator-footer">
+                        <span>
+                            Keyboard numbers and operators are supported
+                        </span>
+
+                        <span>
+                            Press Enter to calculate
+                        </span>
+                    </footer>
+                </div>
+            </section>
+
         <!-- =====================================================
              Welcome application
              ===================================================== -->
@@ -981,7 +1297,7 @@
                         </article>
 
                         <article
-                            class = "nature-chllenge"
+                            class = "nature-challenge"
                             data-nature-challenge = "cleanup"
                             data-points = "25"
                         >
@@ -1092,7 +1408,7 @@
             <div class="start-menu-section">
                 <div class="start-menu-section-heading">
                     <span>Applications</span>
-                    <span id="start-app-count">4 apps</span>
+                    <span id="start-app-count">5 apps</span>
                 </div>
 
                 <div
@@ -1105,25 +1421,6 @@
                         data-open-window="welcome-window"
                         data-search-name="welcome home system"
                     >
-
-                    <button
-                        class = "start-app"
-                        type = "button"
-                        data-open-window = "settings-window"
-                        data-search-name = "settings preferences appearance wallpaper theme"
-                    >
-                        <span
-                            class = "start-app-icon settings-app-icon"
-                            aria-hidden = "true"
-                        >
-                            ⚙️
-                        </span>
-
-                        <span class = "start-app-text">
-                            <strong>Settings</strong>
-                            <span>Appearance preferences</span>
-                        </span>
-                    </button>
                         <span
                             class="start-app-icon welcome-app-icon"
                             aria-hidden="true"
@@ -1172,6 +1469,44 @@
                         <span class="start-app-text">
                             <strong>Nature</strong>
                             <span>Environmental collection</span>
+                        </span>
+                    </button>
+
+                    <button
+                        class="start-app"
+                        type="button"
+                        data-open-window="settings-window"
+                        data-search-name="settings preferences appearance wallpaper theme"
+                    >
+                        <span
+                            class="start-app-icon settings-app-icon"
+                            aria-hidden="true"
+                        >
+                            ⚙️
+                        </span>
+
+                        <span class="start-app-text">
+                            <strong>Settings</strong>
+                            <span>Appearance preferences</span>
+                        </span>
+                    </button>
+
+                    <button
+                        class="start-app"
+                        type="button"
+                        data-open-window="calculator-window"
+                        data-search-name="calculator math numbers arithmetic"
+                    >
+                        <span
+                            class="start-app-icon calculator-app-icon"
+                            aria-hidden="true"
+                        >
+                            🧮
+                        </span>
+
+                        <span class="start-app-text">
+                            <strong>Calculator</strong>
+                            <span>Standard calculator</span>
                         </span>
                     </button>
                 </div>
